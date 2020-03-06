@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Container, Button, Card, Tab, Table, Icon, Confirm } from 'semantic-ui-react'
+import { Container, Button, Card, Tab, Table, Icon, Confirm, Divider, Header } from 'semantic-ui-react'
 import API, { API_SECRET } from '../../api';
 
 import PageHeaderAdmin from '../components/Header'
@@ -8,6 +8,7 @@ import NewDeliveryModal from './NewDeliveryModal';
 import EditDeliveryModal from './EditDeliveryModal';
 import EditUserModal from './EditUserModal';
 import NewUserModal from './NewUserModal';
+import Swal from 'sweetalert2';
 
 class ClientPage extends Component {
   constructor(props) {
@@ -15,6 +16,7 @@ class ClientPage extends Component {
     this.state = { 
       company_id: this.props.match.params.company_id,
       data: [],
+      price_scope: '',
       deleteConfirmWindow: false,
       deleteDeliveryId: 0,
       openModal: false,
@@ -28,7 +30,8 @@ class ClientPage extends Component {
       editUserId: 0,
       openModalUserEdit: false,
       editUserData: [],
-      openModalNewUser: false
+      openModalNewUser: false,
+      deleteClientConfirmWindow: false,
     }
     this.getData()
     this.getUsersData()
@@ -43,7 +46,7 @@ class ClientPage extends Component {
     .then(res => {
         var response = res.data;
         if(response){
-            this.setState({ data: response });
+            this.setState({ data: response, price_scope: response.price_scope });
         }
     })
     .catch(error => console.log("Error: "+error));
@@ -169,6 +172,53 @@ class ClientPage extends Component {
     )
   }
 
+  changePriceScope(scope){
+    this.setState({ price_scope: scope })
+    API.post('ugyfel/changePriceScope/', 'company_id='+this.state.company_id+'&price_scope='+scope+'&API_SECRET='+API_SECRET)
+    .then(res => {
+        var response = res.data;
+        if(response.success){
+          Swal.fire({
+            title: 'Sikeres',
+            text: 'Sikeres módosítás',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500
+          })
+        }
+    })
+    .catch(error => console.log("Error: "+error));
+  }
+
+  pageSettings(){
+    return(  
+      <React.Fragment>
+        <Divider horizontal style={{ marginTop: '40px' }}>
+          <Header as='h4'>
+            <Icon name='tag' />
+            Árkedvezmény
+          </Header>
+        </Divider>
+        <div style={{ textAlign: 'center', marginBottom: '45px' }}>
+          <Button.Group>
+            <Button active={(this.state.price_scope === 'kisker') ? true : false} onClick={ () => this.changePriceScope('kisker') }>Kisker</Button>
+            <Button active={(this.state.price_scope === 'nagyker') ? true : false} onClick={ () => this.changePriceScope('nagyker') }>Nagyker</Button>
+            <Button active={(this.state.price_scope === 'vip') ? true : false} onClick={ () => this.changePriceScope('vip') }>VIP</Button>
+          </Button.Group>
+        </div>
+         <Divider horizontal>
+          <Header as='h4'>
+            <Icon name='trash' />
+            Törlés
+          </Header>
+        </Divider>
+        <div style={{ textAlign: 'center' }}>
+          <Button compact labelPosition='left' icon='trash' color='red' content='Ügyfél törlése' onClick={ () => this.setState({ deleteClientConfirmWindow: true})  }/>
+        </div>
+      </React.Fragment>
+    )
+  }
+
   deleteDelivery(){
     API.post('ugyfel/deleteDeliveryAddress/', 'company_id='+this.state.company_id+'&delivery_id='+this.state.deleteDeliveryId+'&API_SECRET='+API_SECRET)
     .then(res => {
@@ -192,6 +242,19 @@ class ClientPage extends Component {
     .catch(error => console.log("Error: "+error));
   }
 
+  deleteClient(){
+    API.post('ugyfel/deleteClient/', 'company_id='+this.state.company_id+'&API_SECRET='+API_SECRET)
+    .then(res => {
+        var response = res.data;
+        console.log(res)
+        if(response.success){
+          this.setState({ deleteClientConfirmWindow: false }, () => this.props.history.push("/admin/clients"));
+        }
+    })
+    .catch(error => console.log("Error: "+error));
+  }
+
+
   renderInfo(){
     const menus = [
       {
@@ -208,7 +271,7 @@ class ClientPage extends Component {
       },
       {
         menuItem: 'Beállítások',
-        render: () => null,
+        render: () => this.pageSettings(),
       }
     ]
     return (
@@ -245,6 +308,16 @@ class ClientPage extends Component {
           open={this.state.deleteUserConfirmWindow}
           onCancel={ () => this.setState({ deleteUserConfirmWindow: false }) }
           onConfirm={ () => this.deleteUser() }
+        />
+
+        <Confirm
+          content='Biztos vagy benne? Törlődik minden adat, mely az ügyféllel kapcsolatos! A művelet nem vonható vissza!'
+          size='tiny'
+          cancelButton='Mégsem'
+          confirmButton='Mehet'
+          open={this.state.deleteClientConfirmWindow}
+          onCancel={ () => this.setState({ deleteClientConfirmWindow: false }) }
+          onConfirm={ () => this.deleteClient() }
         />
 
         <NewDeliveryModal openModal={this.state.openModal} closeModal={this.closeModal} getData={() => this.getData()} company_id={this.state.company_id}/>

@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
-import PageHeaderUgyfel from '../components/Header';
 import { Container, Tab, Form, Message, Button } from 'semantic-ui-react';
+import Swal from 'sweetalert2';
+import PageHeaderUgyfel from '../components/Header';
+import FooterUgyfel from '../components/Footer';
+import '../components/Footer.css';
 import PlaceholderComponent from '../../components/Placeholder/Placeholder';
 import API, { API_SECRET } from '../../api';
-import Swal from 'sweetalert2';
 
 class BeallitasokPage extends Component {
   constructor(props) {
@@ -229,11 +231,14 @@ class BeallitasokPage extends Component {
 
     render() { 
         return (
-            <Container>
+            <div className="Site">
+            <Container className="Site-content">
                 <PageHeaderUgyfel  />
                 <p style={{ marginTop: '5em' }}></p>
                 {this.renderInfo()}
             </Container>
+            <FooterUgyfel />
+            </div>
         );
     }
 

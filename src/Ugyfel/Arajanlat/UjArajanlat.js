@@ -5,6 +5,8 @@ import { Container, Button, Form, Confirm } from 'semantic-ui-react'
 import API, { API_SECRET } from '../../api';
 import AuthContext from '../../context/auth-context'
 import PageHeaderUgyfel from '../components/Header';
+import FooterUgyfel from '../components/Footer';
+import '../components/Footer.css';
 
 class UjArajanlat extends Component {
 
@@ -62,7 +64,7 @@ class UjArajanlat extends Component {
         }else{
             this.setState({ submitBtn: false })
         }
-        API.post('arajanlat/create', 'user_id='+user_id+'&company_id='+company_id+'&megnevezes='+megnevezes+'&gyartasi_hatarido='+gyartasi_hatarido+'&tartalom='+tartalom+'&API_SECRET='+API_SECRET)
+        API.post('arajanlat/create', 'user_id='+user_id+'&company_id='+company_id+'&megnevezes='+encodeURIComponent(megnevezes)+'&gyartasi_hatarido='+gyartasi_hatarido+'&tartalom='+encodeURIComponent(tartalom)+'&API_SECRET='+API_SECRET)
             .then(res => {
                 var response = res.data;
                 if(response.error){
@@ -103,7 +105,8 @@ class UjArajanlat extends Component {
 
   render() { 
     return ( 
-        <Container>
+        <div className="Site">
+        <Container className="Site-content">
             <PageHeaderUgyfel />
             <p style={{ marginTop: '5em' }}></p>
             <h1>Új árajánlat</h1>
@@ -138,7 +141,7 @@ class UjArajanlat extends Component {
                         )
                     }
                 </Button.Group>
-                <Container style={{ textAlign:'center', paddingBottom: '30px' }}>
+                <Container style={{ textAlign:'center', paddingBottom: '30px', paddingTop: '20px' }}>
                     <Button
                         positive
                         size='large'
@@ -163,6 +166,8 @@ class UjArajanlat extends Component {
             />
 
         </Container>
+        <FooterUgyfel />
+        </div>
     );
   }
 }

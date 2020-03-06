@@ -217,7 +217,7 @@ class ArajanlatPage extends Component {
             this.setState({ submitBtn: false })
         }
 
-        API.post('arajanlat/createMegjegyzes/'+arajanlat_id, 'user_id='+admin_user_id+'&name='+name+'&email='+email+'&comment='+this.state.megjegyzes+'&API_SECRET='+API_SECRET)
+        API.post('arajanlat/createMegjegyzes/'+arajanlat_id, 'user_id='+admin_user_id+'&name='+name+'&email='+email+'&comment='+encodeURIComponent(this.state.megjegyzes)+'&API_SECRET='+API_SECRET)
         .then(res => {
             var response = res.data;
             if(response.error){
@@ -421,7 +421,7 @@ class ArajanlatPage extends Component {
             return;
         }
 
-        API.post('arajanlat/sendEmailToAlvallalkozo', 'alvallalkozo_id='+selectedAlvallalkozo_id+'&email='+emailCim+'&targy='+emailTargy+'&tartalom='+emailTartalom+'&arajanlat_id='+arajanlat_id+'&user_id='+admin_user_id+'&API_SECRET='+API_SECRET)
+        API.post('arajanlat/sendEmailToAlvallalkozo', 'alvallalkozo_id='+selectedAlvallalkozo_id+'&email='+emailCim+'&targy='+emailTargy+'&tartalom='+encodeURIComponent(emailTartalom)+'&arajanlat_id='+arajanlat_id+'&user_id='+admin_user_id+'&API_SECRET='+API_SECRET)
             .then(res => {
                 var response = res.data;
                 if(response.error){
@@ -587,7 +587,7 @@ class ArajanlatPage extends Component {
 
         const arjegyzek = encodeURIComponent(JSON.stringify(this.state.arjegyzekRows))
 
-        const body = 'admin_user_id='+this.state.admin_user_id+'&company_id='+company_id+'&user_id='+user_id+'&arajanlat_id='+arajanlat_id+'&email='+kiajanlasEmail+'&targy='+kiajanlasTargy+'&tartalom='+kiajanlasTartalom+'&arjegyzek='+arjegyzek+'&API_SECRET='+API_SECRET
+        const body = 'admin_user_id='+this.state.admin_user_id+'&company_id='+company_id+'&user_id='+user_id+'&arajanlat_id='+arajanlat_id+'&email='+kiajanlasEmail+'&targy='+encodeURIComponent(kiajanlasTargy)+'&tartalom='+encodeURIComponent(kiajanlasTartalom)+'&arjegyzek='+arjegyzek+'&API_SECRET='+API_SECRET
 
         API.post('arajanlat/arajanlatToUgyfel/', body)
         .then(res => {
@@ -629,15 +629,17 @@ class ArajanlatPage extends Component {
         const arajanlat = this.state.arajanlat_to_ugyfel
         const arjegyzek = this.state.arajanlat_to_ugyfel.arjegyzek
         const sum_netto = arjegyzek.reduce((total, a) => total + a.netto_egysegar*a.mennyiseg, 0);
+        const sum_afa   = calcBrutto(sum_netto)-sum_netto;
 
         return (
             <React.Fragment>
                 <Grid>
                     <Grid.Row>
-                        <Grid.Column width='4'><Header sub style={{ color: '#E80D8A' }}>E-mail</Header><span>{arajanlat.email}</span></Grid.Column>
-                        <Grid.Column width='4'><Header sub style={{ color: '#E80D8A' }}>Tárgy</Header><span>{arajanlat.targy}</span></Grid.Column>
-                        <Grid.Column width='4'><Header sub style={{ color: '#E80D8A' }}>Dátum</Header><span>{arajanlat.datum}</span></Grid.Column>
-                        <Grid.Column width='4'><Header sub style={{ color: '#E80D8A' }}>PDF</Header><span><a href={arajanlat.pdf} target="_blank" rel="noopener noreferrer">megtekintés</a></span></Grid.Column>
+                        <Grid.Column width='3'><Header sub style={{ color: '#E80D8A' }}>Azonosító</Header><span style={{ fontWeight: 'bold' }}>{arajanlat.azonosito}</span></Grid.Column>
+                        <Grid.Column width='3'><Header sub style={{ color: '#E80D8A' }}>E-mail</Header><span>{arajanlat.email}</span></Grid.Column>
+                        <Grid.Column width='3'><Header sub style={{ color: '#E80D8A' }}>Tárgy</Header><span>{arajanlat.targy}</span></Grid.Column>
+                        <Grid.Column width='3'><Header sub style={{ color: '#E80D8A' }}>Dátum</Header><span>{arajanlat.datum}</span></Grid.Column>
+                        <Grid.Column width='3'><Header sub style={{ color: '#E80D8A' }}>PDF</Header><span><a href={arajanlat.pdf} target="_blank" rel="noopener noreferrer">megtekintés</a></span></Grid.Column>
                     </Grid.Row>
                     <Grid.Row>
                         <Grid.Column width='12'><Header sub style={{ color: '#E80D8A' }}>Tartalom</Header><span>{nl2br(arajanlat.tartalom)}</span></Grid.Column>
@@ -684,6 +686,12 @@ class ArajanlatPage extends Component {
                                             <Table.HeaderCell positive textAlign='right' style={{ color: '#E80D8A' }}><b>{numberWithSpace(sum_netto)} Ft</b></Table.HeaderCell>
                                         </Table.Row>
                                     </Table.Footer>
+                                    <Table.Footer>
+                                        <Table.Row>
+                                            <Table.HeaderCell colSpan='5' textAlign='right'>Összesen ÁFA: </Table.HeaderCell>
+                                            <Table.HeaderCell positive textAlign='right'>{numberWithSpace(sum_afa)} Ft</Table.HeaderCell>
+                                        </Table.Row>
+                                    </Table.Footer>
                                 </Table>
                             </div>
                         ) : null
@@ -728,71 +736,74 @@ class ArajanlatPage extends Component {
                                     <Table.Header>
                                         <Table.Row>
                                             <Table.HeaderCell textAlign='center' width='1'>#</Table.HeaderCell>
-                                            <Table.HeaderCell textAlign='center' width='3'>Megnevezés</Table.HeaderCell>
+                                            <Table.HeaderCell textAlign='center' width='4'>Megnevezés</Table.HeaderCell>
                                             <Table.HeaderCell textAlign='center' width='1'>Mennyiség</Table.HeaderCell>
                                             <Table.HeaderCell textAlign='center' width='1'>Me.egys.</Table.HeaderCell>
                                             <Table.HeaderCell textAlign='center' width='2'>Nettó VIP ár</Table.HeaderCell>
                                             <Table.HeaderCell textAlign='center' width='2'>Nettó nagyker ár</Table.HeaderCell>
                                             <Table.HeaderCell textAlign='center' width='2'>Nettó kisker ár</Table.HeaderCell>
                                             <Table.HeaderCell textAlign='center' width='2'>Nettó egys.ár</Table.HeaderCell>
-                                            <Table.HeaderCell textAlign='center' width='3'>Megjegyzés</Table.HeaderCell>
                                             <Table.HeaderCell textAlign='center'>&nbsp;</Table.HeaderCell>
                                         </Table.Row>
                                     </Table.Header>
                                     <Table.Body>
                                     {
                                         this.state.arjegyzekRows.map((ar, idx) => (
-                                            <Table.Row key={idx} onClick={ () => null }>
-                                                <Table.Cell textAlign='center'>{`${idx + 1}`}.</Table.Cell>
-                                                <Table.Cell>
-                                                    <Form.Field>
-                                                    {
-                                                        (ar.ar_id === -1) ? <input type='text' placeholder='Egyedi megnevezés' value={ar.megnevezes} onChange={this.handleChange_MegnevezesEgyedi(idx)}/> : <Select placeholder='VÁLASSZ' search idx={idx} options={this.state.arjegyzek} onChange={ this.handleChange_Megnevezes }/>
-                                                    }
-                                                    
-                                                    </Form.Field>
-                                                </Table.Cell>
-                                                <Table.Cell>
-                                                    <Form.Field required>
-                                                        <input type='number' min='1' placeholder='Mennyiség' value={ar.mennyiseg} onChange={this.handleChange_Mennyiseg(idx)}/>
-                                                    </Form.Field>
-                                                </Table.Cell>
-                                                <Table.Cell>
-                                                    <Form.Field required>
-                                                        <input type='text' placeholder='Me.egys.' value={ar.mennyiseg_egysege} onChange={this.handleChange_MennyisegEgysege(idx)}/>
-                                                    </Form.Field>
-                                                </Table.Cell>
-                                                <Table.Cell onClick={ () => this.setNettoEgysegarViaClick('vip_ar', idx) } style={{ cursor:'pointer' }}>
-                                                    <Form.Field>
-                                                        <input type='number' placeholder='VIP' value={ar.vip_ar} readOnly disabled/>
-                                                    </Form.Field>
-                                                </Table.Cell>
-                                                <Table.Cell onClick={ () => this.setNettoEgysegarViaClick('nagyker_ar', idx) } style={{ cursor:'pointer' }}>
-                                                    <Form.Field>
-                                                        <input type='number' placeholder='Nagyker' value={ar.nagyker_ar} readOnly disabled/>
-                                                    </Form.Field>
-                                                </Table.Cell>
-                                                <Table.Cell onClick={ () => this.setNettoEgysegarViaClick('kisker_ar', idx) } style={{ cursor:'pointer' }}>
-                                                    <Form.Field>
-                                                        <input type='number' placeholder='Kisker' value={ar.kisker_ar} readOnly disabled/>
-                                                    </Form.Field>
-                                                </Table.Cell>
-                                                <Table.Cell>
-                                                    <Form.Field required>
-                                                        <input type='number' placeholder='Nettó egységár' value={ar.netto_egysegar} onChange={this.handleChange_NettoEgysegar(idx)}/>
-                                                    </Form.Field>
-                                                </Table.Cell>
-                                                <Table.Cell>
-                                                    <Form.Field required>
-                                                        <input type='text' placeholder='Megjegyzés' value={ar.megjegyzes} onChange={this.handleChange_Megjegyzes(idx)}/>
-                                                    </Form.Field>
-                                                </Table.Cell>
-                                                <Table.Cell textAlign='center'>
-                                                    <Button icon negative compact size='mini' type='button' onClick={ this.handleDeleteAr(idx) }>
-                                                        <Icon name='trash' />
-                                                    </Button>
-                                                </Table.Cell>
-                                            </Table.Row>
+                                            <React.Fragment key={idx} >
+                                                <Table.Row onClick={ () => null }>
+                                                    <Table.Cell textAlign='center'>{`${idx + 1}`}.</Table.Cell>
+                                                    <Table.Cell>
+                                                        <Form.Field>
+                                                        {
+                                                            (ar.ar_id === -1) ? <input type='text' placeholder='Egyedi megnevezés' value={ar.megnevezes} onChange={this.handleChange_MegnevezesEgyedi(idx)}/> : <Select placeholder='VÁLASSZ' search idx={idx} options={this.state.arjegyzek} onChange={ this.handleChange_Megnevezes }/>
+                                                        }
+                                                        
+                                                        </Form.Field>
+                                                    </Table.Cell>
+                                                    <Table.Cell>
+                                                        <Form.Field required>
+                                                            <input type='number' min='1' placeholder='Mennyiség' value={ar.mennyiseg} onChange={this.handleChange_Mennyiseg(idx)}/>
+                                                        </Form.Field>
+                                                    </Table.Cell>
+                                                    <Table.Cell>
+                                                        <Form.Field required>
+                                                            <input type='text' placeholder='Me.egys.' value={ar.mennyiseg_egysege} onChange={this.handleChange_MennyisegEgysege(idx)}/>
+                                                        </Form.Field>
+                                                    </Table.Cell>
+                                                    <Table.Cell onClick={ () => this.setNettoEgysegarViaClick('vip_ar', idx) } style={{ cursor:'pointer' }}>
+                                                        <Form.Field>
+                                                            <input type='number' placeholder='VIP' value={ar.vip_ar} readOnly disabled/>
+                                                        </Form.Field>
+                                                    </Table.Cell>
+                                                    <Table.Cell onClick={ () => this.setNettoEgysegarViaClick('nagyker_ar', idx) } style={{ cursor:'pointer' }}>
+                                                        <Form.Field>
+                                                            <input type='number' placeholder='Nagyker' value={ar.nagyker_ar} readOnly disabled/>
+                                                        </Form.Field>
+                                                    </Table.Cell>
+                                                    <Table.Cell onClick={ () => this.setNettoEgysegarViaClick('kisker_ar', idx) } style={{ cursor:'pointer' }}>
+                                                        <Form.Field>
+                                                            <input type='number' placeholder='Kisker' value={ar.kisker_ar} readOnly disabled/>
+                                                        </Form.Field>
+                                                    </Table.Cell>
+                                                    <Table.Cell>
+                                                        <Form.Field required>
+                                                            <input type='number' placeholder='Nettó egységár' value={ar.netto_egysegar} onChange={this.handleChange_NettoEgysegar(idx)}/>
+                                                        </Form.Field>
+                                                    </Table.Cell>
+                                                    <Table.Cell textAlign='center'>
+                                                        <Button icon negative compact size='mini' type='button' onClick={ this.handleDeleteAr(idx) }>
+                                                            <Icon name='trash' />
+                                                        </Button>
+                                                    </Table.Cell>
+                                                </Table.Row>
+                                                <Table.Row>
+                                                        <Table.Cell colSpan='10'>
+                                                            <Form.Field>
+                                                                <input type='text' placeholder={`${idx + 1}. tétel megjegyzése`} value={ar.megjegyzes} onChange={this.handleChange_Megjegyzes(idx)}/>
+                                                            </Form.Field>
+                                                        </Table.Cell>
+                                                </Table.Row>
+                                            </React.Fragment>
                                         ))
                                     }
                                 </Table.Body>
@@ -860,7 +871,7 @@ class ArajanlatPage extends Component {
                 <PageHeaderAdmin />
                 <p style={{ marginTop: '5em' }}></p>
                 <Button basic labelPosition='left' icon='left chevron' content='Vissza' onClick={ () => this.props.history.push("/admin/arajanlatok") }  style={{ marginBottom: '25px' }}/>
-                {(this.state.data) ? this.renderInfo() : <PlaceholderComponent /> }  
+                {(this.state.data.length !== 0) ? this.renderInfo() : <PlaceholderComponent /> }  
 
                 <ArajanlatToAlvallalkozoModal data={this.state.arajanlatDetailsModalData} openModal={this.state.arajanlatDetailsModal} closeModal={ () => this.setState({ arajanlatDetailsModal: !this.state.arajanlatDetailsModal })} />
 

@@ -42,7 +42,7 @@ class EditDeliveryModal extends Component {
         }else{
             this.setState({ messageHidden: true, messageText: '', submitBtn: false })
         }
-        API.post('ugyfel/editDeliveryAddress/'+delivery_id+'/'+company_id, 'address='+address+'&API_SECRET='+API_SECRET)
+        API.post('ugyfel/editDeliveryAddress/'+delivery_id+'/'+company_id, 'address='+encodeURIComponent(address)+'&API_SECRET='+API_SECRET)
             .then(res => {
                 var response = res.data;
                 if(response.error){

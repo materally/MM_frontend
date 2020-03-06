@@ -49,7 +49,7 @@ class NewAlvallalkozoModal extends Component {
         }else{
             this.setState({ messageHidden: true, messageText: '', submitBtn: false })
         }
-        API.post('alvallalkozo/create', 'cegnev='+cegnev+'&email='+email+'&vezeteknev='+vezeteknev+'&keresztnev='+keresztnev+'&telefon='+telefon+'&megjegyzes='+megjegyzes+'&megnevezes='+megnevezes+'&bankszamlaszam='+bankszamlaszam+'&adoszam='+adoszam+'&API_SECRET='+API_SECRET)
+        API.post('alvallalkozo/create', 'cegnev='+cegnev+'&email='+email+'&vezeteknev='+vezeteknev+'&keresztnev='+keresztnev+'&telefon='+telefon+'&megjegyzes='+encodeURIComponent(megjegyzes)+'&megnevezes='+encodeURIComponent(megnevezes)+'&bankszamlaszam='+bankszamlaszam+'&adoszam='+adoszam+'&API_SECRET='+API_SECRET)
             .then(res => {
                 var response = res.data;
                 if(response.error){

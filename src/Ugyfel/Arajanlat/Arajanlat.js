@@ -5,6 +5,8 @@ import { numberWithSpace, calcBrutto } from '../../Helpers/Helpers'
 import API, { API_SECRET } from '../../api';
 
 import PageHeaderUgyfel from '../components/Header';
+import FooterUgyfel from '../components/Footer';
+import '../components/Footer.css';
 import PlaceholderComponent from '../../components/Placeholder/Placeholder';
 
 class ArajanlatPage extends Component {
@@ -87,13 +89,15 @@ class ArajanlatPage extends Component {
         const arjegyzek = this.state.arajanlatToUgyfel.arjegyzek
         const admin     = this.state.arajanlatToUgyfel.admin
         const sum_netto = arjegyzek.reduce((total, a) => total + a.netto_egysegar*a.mennyiseg, 0);
+        const sum_afa   = calcBrutto(sum_netto)-sum_netto;
 
         return (
             <React.Fragment>
                 <Grid>
                     <Grid.Row>
-                        <Grid.Column width='4'><Header sub style={{ color: '#E80D8A' }}>Tárgy</Header><span>{arajanlat.targy}</span></Grid.Column>
-                        <Grid.Column width='4'><Header sub style={{ color: '#E80D8A' }}>Dátum</Header><span>{arajanlat.datum}</span></Grid.Column>
+                        <Grid.Column width='2'><Header sub style={{ color: '#E80D8A' }}>Azonosító</Header><span><b>{arajanlat.azonosito}</b></span></Grid.Column>
+                        <Grid.Column width='3'><Header sub style={{ color: '#E80D8A' }}>Tárgy</Header><span>{arajanlat.targy}</span></Grid.Column>
+                        <Grid.Column width='3'><Header sub style={{ color: '#E80D8A' }}>Dátum</Header><span>{arajanlat.datum}</span></Grid.Column>
                         <Grid.Column width='3'><Header sub style={{ color: '#E80D8A' }}>Feladó</Header><span>{admin.vezeteknev} {admin.keresztnev}</span></Grid.Column>
                         <Grid.Column width='3'><Header sub style={{ color: '#E80D8A' }}>Elérhetőség</Header><span><Icon name='envelope' /><a href={"mailto:"+admin.email}>{admin.email}</a> <br /><Icon name='phone'/><a href={"tel:"+admin.telefonszam}>{admin.telefonszam}</a></span></Grid.Column>
                         <Grid.Column width='2' textAlign='right'><Header sub style={{ color: '#E80D8A' }}>PDF</Header><span><Icon name='file pdf' /><a target="_blank" rel="noopener noreferrer" href={arajanlat.pdf}>letöltés</a></span></Grid.Column>
@@ -141,6 +145,12 @@ class ArajanlatPage extends Component {
                                             <Table.HeaderCell positive textAlign='right' style={{ color: '#E80D8A' }}><b>{numberWithSpace(sum_netto)} Ft</b></Table.HeaderCell>
                                         </Table.Row>
                                     </Table.Footer>
+                                    <Table.Footer>
+                                        <Table.Row>
+                                            <Table.HeaderCell colSpan='4' textAlign='right'>Összesen ÁFA: </Table.HeaderCell>
+                                            <Table.HeaderCell positive textAlign='right'>{numberWithSpace(sum_afa)} Ft</Table.HeaderCell>
+                                        </Table.Row>
+                                    </Table.Footer>
                                 </Table>
                             </div>
                         ) : null
@@ -152,7 +162,8 @@ class ArajanlatPage extends Component {
 
     render(){
         return (
-            <Container>
+            <div className="Site">
+            <Container className="Site-content">
                 <PageHeaderUgyfel />
                 <p style={{ marginTop: '5em' }}></p>
                 <Button basic labelPosition='left' icon='left chevron' content='Vissza' onClick={ () => this.props.history.push("/ugyfel/arajanlataim") } />
@@ -167,6 +178,8 @@ class ArajanlatPage extends Component {
                     }
                 </div>
             </Container>
+            <FooterUgyfel />
+            </div>
         )
     }
 }

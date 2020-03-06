@@ -59,7 +59,7 @@ class NewArModal extends Component {
             this.setState({ messageHidden: true, messageText: '', submitBtn: false })
         }
 
-        API.post('arjegyzek/create', 'megnevezes='+megnevezes+'&mennyiseg_egysege='+mennyiseg_egysege+'&mennyiseg='+mennyiseg+'&alapanyag_netto_bekereules_ar='+alapanyag_netto_bekereules_ar+'&nyomtatas_netto_bekerules_ar='+nyomtatas_netto_bekerules_ar+'&egyeb_koltseg='+egyeb_koltseg+'&bekerules_netto_ar='+bekerules_netto_ar+'&megjegyzes='+megjegyzes+'&eladasi_netto_vip_ar='+eladasi_netto_vip_ar+'&eladasi_netto_nagyker_ar='+eladasi_netto_nagyker_ar+'&eladasi_netto_kisker_ar='+eladasi_netto_kisker_ar+'&API_SECRET='+API_SECRET)
+        API.post('arjegyzek/create', 'megnevezes='+encodeURIComponent(megnevezes)+'&mennyiseg_egysege='+mennyiseg_egysege+'&mennyiseg='+mennyiseg+'&alapanyag_netto_bekereules_ar='+alapanyag_netto_bekereules_ar+'&nyomtatas_netto_bekerules_ar='+nyomtatas_netto_bekerules_ar+'&egyeb_koltseg='+egyeb_koltseg+'&bekerules_netto_ar='+bekerules_netto_ar+'&megjegyzes='+encodeURIComponent(megjegyzes)+'&eladasi_netto_vip_ar='+eladasi_netto_vip_ar+'&eladasi_netto_nagyker_ar='+eladasi_netto_nagyker_ar+'&eladasi_netto_kisker_ar='+eladasi_netto_kisker_ar+'&API_SECRET='+API_SECRET)
             .then(res => {
                 var response = res.data;
                 if(response.error){

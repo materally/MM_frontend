@@ -18,8 +18,9 @@ class PageHeaderUgyfel extends Component {
                         <Image size='small' src={process.env.PUBLIC_URL + '/menuheader.png'} style={{  }} />
                     </Menu.Item>
 
-                    <Menu.Item as={Link} to="/ugyfel/uj_arajanlat">Új árajánlat</Menu.Item>
-                    <Menu.Item as={Link} to="/ugyfel/arajanlataim">Árajánlataim</Menu.Item>
+                    <Menu.Item as={Link} to="/ugyfel/uj_arajanlat">Árajánlatot kérek</Menu.Item>
+                    <Menu.Item as={Link} to="/ugyfel/arajanlataim">Ajánlataim</Menu.Item>
+                    <Menu.Item as={Link} to="/ugyfel/home">Árjegyzék</Menu.Item>
                     <Menu.Item as={Link} to="/ugyfel/beallitasok">Beállítások</Menu.Item>
 
                     <Menu.Item name='logout' as='a' onClick={() => this.logout()}>Kijelentkezés</Menu.Item>

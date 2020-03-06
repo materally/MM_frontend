@@ -41,7 +41,7 @@ class EditDeliveryModal extends Component {
         const vezeteknev = this.state.vezeteknev;
         const keresztnev = this.state.keresztnev;
         const email = this.state.email;
-        const telefonszam = this.state.telefonszam;
+        const telefonszam = encodeURIComponent(this.state.telefonszam);
 
         if(vezeteknev.trim().length === 0 || keresztnev.trim().length === 0 || email.trim().length === 0){
             this.setState({ messageHidden: false, messageText: 'A csillaggal jelölt mezők kitöltése kötelező!', submitBtn: true, buttonLoader: false });

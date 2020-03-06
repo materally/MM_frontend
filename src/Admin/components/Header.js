@@ -24,13 +24,21 @@ class PageHeaderAdmin extends Component {
                     <Menu.Item as={Link} to="/admin/clients">Ügyféltörzs</Menu.Item>
                     <Menu.Item as={Link} to="/admin/alvallalkozo">Alvállalkozók</Menu.Item>
                     <Menu.Item as={Link} to="/admin/arjegyzek">Árjegyzék</Menu.Item>
-                    <Menu.Item as={Link} to="/admin/arajanlatok">Árajánlatkérések</Menu.Item>
 
-                    <Dropdown text='Beállítások' pointing className='link item'>
+                    <Dropdown text='Árajánlat' pointing className='link item'>
                         <Dropdown.Menu>
+                            <Dropdown.Item as={Link} to="/admin/uj_arajanlat">Új árajánlat</Dropdown.Item>
+                            <Dropdown.Item as={Link} to="/admin/uj_arajanlatok">Kiajánlások</Dropdown.Item>
+                            <Dropdown.Item as={Link} to="/admin/arajanlatok">Árajánlatkérések</Dropdown.Item>
                             <Dropdown.Item as={Link} to="/admin/arajanlat_sablonok">Árajánlat sablonok</Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
+
+                    {/* <Dropdown text='Beállítások' pointing className='link item'>
+                        <Dropdown.Menu>
+                            <Dropdown.Item as={Link} to="/admin/arajanlat_sablonok">Árajánlat sablonok</Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown> */}
 
                     <Menu.Item name='logout' as='a' onClick={() => this.logout()}>Kijelentkezés&nbsp;&nbsp; <b>{name}</b></Menu.Item>
 

@@ -40,7 +40,7 @@ class NewSablonModal extends Component {
             this.setState({ messageHidden: true, messageText: '', submitBtn: false })
         }
 
-        API.post('arajanlat/createSablon', 'megnevezes='+megnevezes+'&sablon='+sablon+'&API_SECRET='+API_SECRET)
+        API.post('arajanlat/createSablon', 'megnevezes='+encodeURIComponent(megnevezes)+'&sablon='+encodeURIComponent(sablon)+'&API_SECRET='+API_SECRET)
             .then(res => {
                 var response = res.data;
                 if(response.error){

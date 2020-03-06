@@ -13,6 +13,9 @@ import AlvallalkozoPage from '../Alvallalkozo/AlvallalkozoPage'
 import ArajanlatSablonokPage from '../ArajanlatSablonok/ArajanlatSablonokPage'
 import ArajanlatPage from '../Arajanlat/Arajanlat'
 import ArajanlatokPage from '../Arajanlat/Arajanlatok'
+import UjArajanlatPage from '../Arajanlat/UjArajanlat'
+import UjArajanlatViewPage from '../Arajanlat/UjArajanlatView'
+import UjArajanlatokPage from '../Arajanlat/UjArajanlatok'
 import Arjegyzek from '../Arjegyzek/Arjegyzek'
 import ErrorPage from '../../ErrorPage/ErrorPage'
 
@@ -73,6 +76,8 @@ class AdminRoot extends Component {
             {!this.state.token && <Redirect exact from="/admin/arjegyzek" to="/admin/login" />}
             {!this.state.token && <Redirect exact from="/admin/arajanlatok" to="/admin/login" />}
             {!this.state.token && <Redirect exact from="/admin/arajanlat_sablonok" to="/admin/login" />}
+            {!this.state.token && <Redirect exact from="/admin/uj_arajanlat" to="/admin/login" />}
+            {!this.state.token && <Redirect exact from="/admin/uj_arajanlatok" to="/admin/login" />}
             {!this.state.token && (
               <Route path="/admin/login" component={AdminLogin} exact/>
             )}
@@ -106,6 +111,15 @@ class AdminRoot extends Component {
             )}
             {this.state.token && (
               <Route path="/admin/arajanlat_sablonok" component={ArajanlatSablonokPage} exact/>
+            )}
+            {this.state.token && (
+              <Route path="/admin/uj_arajanlat" component={UjArajanlatPage} exact/>
+            )}
+            {this.state.token && (
+              <Route path="/admin/uj_arajanlatok" component={UjArajanlatokPage} exact/>
+            )}
+            {this.state.token && (
+              <Route path="/admin/uj_arajanlatok/:uj_arajanlat_id" component={UjArajanlatViewPage} exact/>
             )}
              
             <Route component={ErrorPage}/> 

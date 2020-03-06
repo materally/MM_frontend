@@ -4,7 +4,7 @@ import API, { API_SECRET } from '../../api';
 
 import PageHeaderAdmin from '../components/Header'
 
-class ArajanlatokPage extends Component {
+class UjArajanlatokPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -14,7 +14,7 @@ class ArajanlatokPage extends Component {
     }
 
     getData(){
-        API.get(`arajanlat/adminGet`, {params: {'API_SECRET': API_SECRET} })
+        API.get(`arajanlat/ujArajanlatok`, {params: {'API_SECRET': API_SECRET} })
         .then(res => {
             var response = res.data;
             if(response){
@@ -25,7 +25,7 @@ class ArajanlatokPage extends Component {
     }
 
     selectArajanlat = (arajanlat_id) => {
-        this.props.history.push("/admin/arajanlatok/"+arajanlat_id);
+        this.props.history.push("/admin/uj_arajanlatok/"+arajanlat_id);
     }
 
     render(){
@@ -34,7 +34,7 @@ class ArajanlatokPage extends Component {
                 <PageHeaderAdmin />
                 <p style={{ marginTop: '5em' }}></p>
                 <div style={{ paddingBottom: '3em' }}>
-                    <Header as='h2' floated='left'>Árajánlatkérések</Header>
+                    <Header as='h2' floated='left'>Kiajánlások</Header>
                 </div>
                     {
                         (this.state.data.length !== 0) ? (
@@ -42,30 +42,30 @@ class ArajanlatokPage extends Component {
                                 <Table.Header>
                                 <Table.Row>
                                     <Table.HeaderCell>#</Table.HeaderCell>
-                                    <Table.HeaderCell>Cégnév</Table.HeaderCell>
+                                    <Table.HeaderCell>Címzett</Table.HeaderCell>
+                                    <Table.HeaderCell>Feladó</Table.HeaderCell>
                                     <Table.HeaderCell>Megnevezés</Table.HeaderCell>
                                     <Table.HeaderCell>Dátum</Table.HeaderCell>
-                                    <Table.HeaderCell>Gyártási határidő</Table.HeaderCell>
                                 </Table.Row>
                                 </Table.Header>
                                 <Table.Body>
                                     {
                                         this.state.data.map((arajanlat) => (
-                                            <Table.Row key={arajanlat.arajanlat_id} onClick={ () => this.selectArajanlat(arajanlat.arajanlat_id) } className="stripedTableTr" positive={ (arajanlat.feldolgozva === "1") ? true : false }>
-                                                <Table.Cell>{arajanlat.arajanlat_id}</Table.Cell>
-                                                <Table.Cell>{arajanlat.company_data.cegnev}</Table.Cell>
+                                            <Table.Row key={arajanlat.uj_arajanlat_id} onClick={ () => this.selectArajanlat(arajanlat.uj_arajanlat_id) } className="stripedTableTr">
+                                                <Table.Cell>{arajanlat.azonosito}</Table.Cell>
+                                                <Table.Cell>{arajanlat.cimzett_nev} ({arajanlat.company.cegnev})</Table.Cell>
+                                                <Table.Cell>{arajanlat.felado_nev}</Table.Cell>
                                                 <Table.Cell>{arajanlat.megnevezes}</Table.Cell>
                                                 <Table.Cell>{arajanlat.datum}</Table.Cell>
-                                                <Table.Cell>{arajanlat.gyartasi_hatarido}</Table.Cell>
                                             </Table.Row>
                                         ))
                                     }
                                 </Table.Body>
                             </Table>
-                        ) : <h4>Még nincs árajánlatkérés!</h4>
+                        ) : <h4>Még nincs kiajánlás!</h4>
                     }
             </Container>
         )
     }
 }
-export default ArajanlatokPage;
+export default UjArajanlatokPage;

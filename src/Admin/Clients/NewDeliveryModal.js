@@ -40,7 +40,7 @@ class NewDeliveryModal extends Component {
         }else{
             this.setState({ messageHidden: true, messageText: '', submitBtn: false })
         }
-        API.post('ugyfel/createDeliveryAddress', 'address='+address+'&company_id='+company_id+'&API_SECRET='+API_SECRET)
+        API.post('ugyfel/createDeliveryAddress', 'address='+encodeURIComponent(address)+'&company_id='+company_id+'&API_SECRET='+API_SECRET)
             .then(res => {
                 console.log(res)
                 var response = res.data;
