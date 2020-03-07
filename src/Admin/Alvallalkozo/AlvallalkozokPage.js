@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Container, Table, Header, Button } from 'semantic-ui-react'
 import API, { API_SECRET } from '../../api';
 import './AlvallalkozoPage.css';
+import PlaceholderComponent from '../../components/Placeholder/Placeholder';
 
 import PageHeaderAdmin from '../components/Header'
 import NewAlvallalkozoModal from './NewAlvallalkozoModal';
@@ -11,6 +12,7 @@ class AlvallalkozokPage extends Component {
         super(props);
         this.state = {
             data: [],
+            loadingPage: true,
             openModalNewAlvallalkozo: false
         }
         this.getData();
@@ -21,7 +23,7 @@ class AlvallalkozokPage extends Component {
         .then(res => {
             var response = res.data;
             if(response){
-                this.setState({ data: response });
+                this.setState({ data: response, loadingPage: false });
             }
         })
         .catch(error => console.log("Error: "+error));
@@ -35,6 +37,41 @@ class AlvallalkozokPage extends Component {
         this.setState({ openModalNewAlvallalkozo: false });
     }
 
+    renderList(){
+        return (
+        <Table striped selectable>
+            <Table.Header>
+            <Table.Row>
+                <Table.HeaderCell>Cégnév</Table.HeaderCell>
+                <Table.HeaderCell>Kapcsolattartó</Table.HeaderCell>
+                <Table.HeaderCell>E-mail</Table.HeaderCell>
+            </Table.Row>
+            </Table.Header>
+            <Table.Body>
+                {
+                    this.state.data.map((av) => (
+                        <Table.Row key={av.alvallalkozo_id} onClick={ () => this.selectAv(av.alvallalkozo_id) } className="stripedTableTr">
+                            <Table.Cell>{av.cegnev}</Table.Cell>
+                            <Table.Cell>{av.vezeteknev} {av.keresztnev} { av.telefon && `(${av.telefon})` }</Table.Cell>
+                            <Table.Cell>{av.email}</Table.Cell>
+                        </Table.Row>
+                    ))
+                }
+            </Table.Body>
+        </Table>
+        )
+    }
+
+    renderInit(){
+        if(this.state.loadingPage && this.state.data.length === 0){
+          return <PlaceholderComponent />
+        }else if(!this.state.loadingPage && this.state.data.length === 0){
+          return <h4>Még nincs alvállalkozó!</h4>
+        }else{
+          return this.renderList()
+        }
+    }
+
     render(){
         return (
             <Container>
@@ -44,32 +81,9 @@ class AlvallalkozokPage extends Component {
                     <Header as='h2' floated='left'>Alvállalkozók</Header>
                     <Button floated='right' compact labelPosition='right' icon='plus square' content='Új alvállalkozó létrehozása' color='green' onClick={ () => this.setState({ openModalNewAlvallalkozo: !this.state.openModalNewAlvallalkozo})  } />
                 </div>
-                    {
-                        (this.state.data.length !== 0) ? (
-                            <Table striped selectable>
-                                <Table.Header>
-                                <Table.Row>
-                                    <Table.HeaderCell>Cégnév</Table.HeaderCell>
-                                    <Table.HeaderCell>Kapcsolattartó</Table.HeaderCell>
-                                    <Table.HeaderCell>E-mail</Table.HeaderCell>
-                                </Table.Row>
-                                </Table.Header>
-                                <Table.Body>
-                                    {
-                                        this.state.data.map((av) => (
-                                            <Table.Row key={av.alvallalkozo_id} onClick={ () => this.selectAv(av.alvallalkozo_id) } className="stripedTableTr">
-                                                <Table.Cell>{av.cegnev}</Table.Cell>
-                                                <Table.Cell>{av.vezeteknev} {av.keresztnev} { av.telefon && `(${av.telefon})` }</Table.Cell>
-                                                <Table.Cell>{av.email}</Table.Cell>
-                                            </Table.Row>
-                                        ))
-                                    }
-                                </Table.Body>
-                            </Table>
-                        ) : <h4>Még nincs alvállalkozó!</h4>
-                    }
+                { this.renderInit() }
                 
-                 <NewAlvallalkozoModal openModal={this.state.openModalNewAlvallalkozo} closeModal={this.closeModal} getData={() => this.getData()}/>
+                <NewAlvallalkozoModal openModal={this.state.openModalNewAlvallalkozo} closeModal={this.closeModal} getData={() => this.getData()}/>
             </Container>
         )
     }

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Container, Table, Header, Button, Icon, Confirm } from 'semantic-ui-react'
 import API, { API_SECRET } from '../../api';
 import { numberWithSpace } from '../../Helpers/Helpers'
+import PlaceholderComponent from '../../components/Placeholder/Placeholder';
 
 import PageHeaderAdmin from '../components/Header'
 import NewArModal from './NewArModal';
@@ -12,6 +13,7 @@ class Arjegyzek extends Component {
         super(props);
         this.state = {
             data: [],
+            loadingPage: true,
             arData: [],
             openModalNewAr: false,
             openModalEditAr: false,
@@ -28,7 +30,7 @@ class Arjegyzek extends Component {
         .then(res => {
             var response = res.data;
             if(response){
-                this.setState({ data: response });
+                this.setState({ data: response, loadingPage: false });
             }
         })
         .catch(error => console.log("Error: "+error));
@@ -48,6 +50,62 @@ class Arjegyzek extends Component {
         .catch(error => console.log("Error: "+error));
     }
 
+    renderList(){
+        return (
+            <Table striped compact='very' celled size='small'>
+                <Table.Header>
+                <Table.Row>
+                    <Table.HeaderCell textAlign='center'>Megnevezés</Table.HeaderCell>
+                    <Table.HeaderCell textAlign='center'>Menny. egys.</Table.HeaderCell>
+                    <Table.HeaderCell textAlign='center'>Mennyiség</Table.HeaderCell>
+                    <Table.HeaderCell textAlign='center'>Alapanyag nettó bekerülési ára</Table.HeaderCell>
+                    <Table.HeaderCell textAlign='center'>Nyomtatás nettó bekerülési ára</Table.HeaderCell>
+                    <Table.HeaderCell textAlign='center'>Egyéb költség</Table.HeaderCell>
+                    <Table.HeaderCell textAlign='center'>Bekerülési nettó ár</Table.HeaderCell>
+                    <Table.HeaderCell textAlign='center'>Megjegyzés</Table.HeaderCell>
+                    <Table.HeaderCell textAlign='center'>Eladási nettó VIP ár</Table.HeaderCell>
+                    <Table.HeaderCell textAlign='center'>Eladási NAGYKER nettó ár</Table.HeaderCell>
+                    <Table.HeaderCell textAlign='center'>Eladási KISKER nettó ár</Table.HeaderCell>
+                    <Table.HeaderCell textAlign='center'>&nbsp;</Table.HeaderCell>
+                </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                    {
+                        this.state.data.map((ar) => (
+                            <Table.Row key={ar.ar_id} onClick={ () => null }>
+                                <Table.Cell>{ ar.megnevezes }</Table.Cell>
+                                <Table.Cell textAlign='center'>{ ar.mennyiseg_egysege }</Table.Cell>
+                                <Table.Cell textAlign='center'>{ ar.mennyiseg }</Table.Cell>
+                                <Table.Cell textAlign='right'>{ (this.state.hideBekerules) ? '-' : numberWithSpace(ar.alapanyag_netto_bekereules_ar) + ' Ft' }</Table.Cell>
+                                <Table.Cell textAlign='right'>{ (this.state.hideBekerules) ? '-' : numberWithSpace(ar.nyomtatas_netto_bekerules_ar) + ' Ft' }</Table.Cell>
+                                <Table.Cell textAlign='right'>{ (this.state.hideBekerules) ? '-' : numberWithSpace(ar.egyeb_koltseg) + ' Ft' }</Table.Cell>
+                                <Table.Cell textAlign='right'>{ (this.state.hideBekerules) ? '-' : numberWithSpace(ar.bekerules_netto_ar) + ' Ft' } </Table.Cell>
+                                <Table.Cell textAlign='right'>{ ar.megjegyzes }</Table.Cell>
+                                <Table.Cell textAlign='right'>{ numberWithSpace(ar.eladasi_netto_vip_ar) } Ft</Table.Cell>
+                                <Table.Cell textAlign='right'>{ numberWithSpace(ar.eladasi_netto_nagyker_ar) } Ft</Table.Cell>
+                                <Table.Cell textAlign='right'>{ numberWithSpace(ar.eladasi_netto_kisker_ar) } Ft</Table.Cell>
+                                <Table.Cell textAlign='center'>
+                                    <Icon link name='edit' color='blue' onClick={ () => this.setState({ editArId: ar.ar_id, openModalEditAr: true, arData: ar }) }/>
+                                    <Icon link name='trash' color='red' onClick={ () => this.setState({ deleteArConfirmWindow: true, deleteArId: ar.ar_id }) }/>
+                                </Table.Cell>
+                            </Table.Row>
+                        ))
+                    }
+                </Table.Body>
+            </Table>
+        )
+    }
+
+    renderInit(){
+        if(this.state.loadingPage && this.state.data.length === 0){
+            return <PlaceholderComponent />
+        }else if(!this.state.loadingPage && this.state.data.length === 0){
+            return <h4>Még nincs ár felvéve!</h4>
+        }else{
+            return this.renderList()
+        }
+    }
+
     render(){
         return (
             <React.Fragment>
@@ -61,51 +119,7 @@ class Arjegyzek extends Component {
                     </div>
                 </Container>
                 <Container style={{ width:'95%' }}>
-                    {
-                        (this.state.data.length !== 0) ? (
-                            <Table striped compact='very' celled size='small'>
-                                <Table.Header>
-                                <Table.Row>
-                                    <Table.HeaderCell textAlign='center'>Megnevezés</Table.HeaderCell>
-                                    <Table.HeaderCell textAlign='center'>Menny. egys.</Table.HeaderCell>
-                                    <Table.HeaderCell textAlign='center'>Mennyiség</Table.HeaderCell>
-                                    <Table.HeaderCell textAlign='center'>Alapanyag nettó bekerülési ára</Table.HeaderCell>
-                                    <Table.HeaderCell textAlign='center'>Nyomtatás nettó bekerülési ára</Table.HeaderCell>
-                                    <Table.HeaderCell textAlign='center'>Egyéb költség</Table.HeaderCell>
-                                    <Table.HeaderCell textAlign='center'>Bekerülési nettó ár</Table.HeaderCell>
-                                    <Table.HeaderCell textAlign='center'>Megjegyzés</Table.HeaderCell>
-                                    <Table.HeaderCell textAlign='center'>Eladási nettó VIP ár</Table.HeaderCell>
-                                    <Table.HeaderCell textAlign='center'>Eladási NAGYKER nettó ár</Table.HeaderCell>
-                                    <Table.HeaderCell textAlign='center'>Eladási KISKER nettó ár</Table.HeaderCell>
-                                    <Table.HeaderCell textAlign='center'>&nbsp;</Table.HeaderCell>
-                                </Table.Row>
-                                </Table.Header>
-                                <Table.Body>
-                                    {
-                                        this.state.data.map((ar) => (
-                                            <Table.Row key={ar.ar_id} onClick={ () => null }>
-                                                <Table.Cell>{ ar.megnevezes }</Table.Cell>
-                                                <Table.Cell textAlign='center'>{ ar.mennyiseg_egysege }</Table.Cell>
-                                                <Table.Cell textAlign='center'>{ ar.mennyiseg }</Table.Cell>
-                                                <Table.Cell textAlign='right'>{ (this.state.hideBekerules) ? '-' : numberWithSpace(ar.alapanyag_netto_bekereules_ar) + ' Ft' }</Table.Cell>
-                                                <Table.Cell textAlign='right'>{ (this.state.hideBekerules) ? '-' : numberWithSpace(ar.nyomtatas_netto_bekerules_ar) + ' Ft' }</Table.Cell>
-                                                <Table.Cell textAlign='right'>{ (this.state.hideBekerules) ? '-' : numberWithSpace(ar.egyeb_koltseg) + ' Ft' }</Table.Cell>
-                                                <Table.Cell textAlign='right'>{ (this.state.hideBekerules) ? '-' : numberWithSpace(ar.bekerules_netto_ar) + ' Ft' } </Table.Cell>
-                                                <Table.Cell textAlign='right'>{ ar.megjegyzes }</Table.Cell>
-                                                <Table.Cell textAlign='right'>{ numberWithSpace(ar.eladasi_netto_vip_ar) } Ft</Table.Cell>
-                                                <Table.Cell textAlign='right'>{ numberWithSpace(ar.eladasi_netto_nagyker_ar) } Ft</Table.Cell>
-                                                <Table.Cell textAlign='right'>{ numberWithSpace(ar.eladasi_netto_kisker_ar) } Ft</Table.Cell>
-                                                <Table.Cell textAlign='center'>
-                                                    <Icon link name='edit' color='blue' onClick={ () => this.setState({ editArId: ar.ar_id, openModalEditAr: true, arData: ar }) }/>
-                                                    <Icon link name='trash' color='red' onClick={ () => this.setState({ deleteArConfirmWindow: true, deleteArId: ar.ar_id }) }/>
-                                                </Table.Cell>
-                                            </Table.Row>
-                                        ))
-                                    }
-                                </Table.Body>
-                            </Table>
-                        ) : <h4>Még nincs ár felvéve!</h4>
-                    }
+                    { this.renderInit() }
                 </Container>
 
                 <NewArModal openModal={this.state.openModalNewAr} closeModal={this.closeModal} getData={() => this.getData()}/>

@@ -3,6 +3,7 @@ import { Container, Table, Header, Button } from 'semantic-ui-react'
 import API, { API_SECRET } from '../../api';
 
 import PageHeaderAdmin from '../components/Header'
+import PlaceholderComponent from '../../components/Placeholder/Placeholder';
 
 import './ClientsPage.css';
 import NewClientModal from './NewClientModal';
@@ -12,6 +13,7 @@ class ClientsPage extends Component {
     super(props);
     this.state = { 
         data: [],
+        loadingPage: true,
         openModal: false
     }
     this.getData();
@@ -22,7 +24,7 @@ class ClientsPage extends Component {
     .then(res => {
         var response = res.data;
         if(response){
-            this.setState({ data: response });
+            this.setState({ data: response, loadingPage: false });
         }
     })
     .catch(error => console.log("Error: "+error));
@@ -36,6 +38,41 @@ class ClientsPage extends Component {
     this.setState({ openModal: false });
   }
 
+  renderList(){
+    return (
+      <Table striped selectable>
+          <Table.Header>
+          <Table.Row>
+              <Table.HeaderCell>Cégnév</Table.HeaderCell>
+              <Table.HeaderCell>Számlázási cím</Table.HeaderCell>
+              <Table.HeaderCell>Adószám</Table.HeaderCell>
+          </Table.Row>
+          </Table.Header>
+          <Table.Body>
+              {
+                  this.state.data.map((client) => (
+                      <Table.Row key={client.company_id} onClick={ () => this.selectClient(client.company_id) } className="stripedTableTr">
+                          <Table.Cell>{client.cegnev}</Table.Cell>
+                          <Table.Cell>{client.szamlazasi_cim}</Table.Cell>
+                          <Table.Cell>{client.adoszam}</Table.Cell>
+                      </Table.Row>
+                  ))
+              }
+          </Table.Body>
+      </Table>
+    )
+  }
+
+  renderInit(){
+    if(this.state.loadingPage && this.state.data.length === 0){
+      return <PlaceholderComponent />
+    }else if(!this.state.loadingPage && this.state.data.length === 0){
+      return <h4>Még nincs ügyfél!</h4>
+    }else{
+      return this.renderList()
+    }
+  }
+
   render() { 
     return ( 
       <Container>
@@ -45,30 +82,7 @@ class ClientsPage extends Component {
             <Header as='h2' floated='left'>Ügyféltörzs</Header>
             <Button floated='right' compact labelPosition='right' icon='plus square' content='Új ügyfél létrehozása' color='green' onClick={ () => this.setState({ openModal: !this.state.openModal})  } />
         </div>
-        {
-            (this.state.data.length !== 0) ? (
-                <Table striped selectable>
-                    <Table.Header>
-                    <Table.Row>
-                        <Table.HeaderCell>Cégnév</Table.HeaderCell>
-                        <Table.HeaderCell>Számlázási cím</Table.HeaderCell>
-                        <Table.HeaderCell>Adószám</Table.HeaderCell>
-                    </Table.Row>
-                    </Table.Header>
-                    <Table.Body>
-                        {
-                            this.state.data.map((client) => (
-                                <Table.Row key={client.company_id} onClick={ () => this.selectClient(client.company_id) } className="stripedTableTr">
-                                    <Table.Cell>{client.cegnev}</Table.Cell>
-                                    <Table.Cell>{client.szamlazasi_cim}</Table.Cell>
-                                    <Table.Cell>{client.adoszam}</Table.Cell>
-                                </Table.Row>
-                            ))
-                        }
-                    </Table.Body>
-                </Table>
-            ) : <h4>Még nincs ügyfél!</h4>
-        }
+        { this.renderInit() }
         
         <NewClientModal openModal={this.state.openModal} closeModal={this.closeModal} getData={() => this.getData()}/>
       </Container>

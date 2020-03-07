@@ -286,7 +286,7 @@ class ClientPage extends Component {
         <PageHeaderAdmin />
         <p style={{ marginTop: '5em' }}></p>
         <Button basic labelPosition='left' icon='left chevron' content='Vissza' onClick={ () => this.props.history.push("/admin/clients") } />
-        {(this.state.data) ? this.renderInfo() : <PlaceholderComponent /> }
+        {(this.state.data.length !== 0) ? this.renderInfo() : <PlaceholderComponent /> }
 
         <Confirm
           content='Biztos vagy benne? A művelet nem vonható vissza!'

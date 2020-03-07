@@ -4,6 +4,7 @@ import PageHeaderAdmin from '../components/Header'
 import NewSablonModal from './NewSablonModal'
 import EditSablonModal from './EditSablonModal'
 import API, { API_SECRET } from '../../api';
+import PlaceholderComponent from '../../components/Placeholder/Placeholder';
 
 class ArajanlatSablonokPage extends Component {
   constructor(props) {
@@ -14,6 +15,7 @@ class ArajanlatSablonokPage extends Component {
         deleteSablonConfirmWindow: false,
         deleteSablonId: 0,
         data: [],
+        loadingPage: true,
         sablonData: []
     }
     this.getData()
@@ -28,7 +30,7 @@ class ArajanlatSablonokPage extends Component {
         .then(res => {
             var response = res.data;
             if(response){
-                this.setState({ data: response });
+                this.setState({ data: response, loadingPage: false });
             }
         })
         .catch(error => console.log("Error: "+error));
@@ -42,6 +44,46 @@ class ArajanlatSablonokPage extends Component {
             this.getData()
         })
         .catch(error => console.log("Error: "+error));
+    }
+
+    renderList(){
+        return (
+            <Table striped>
+                <Table.Header>
+                    <Table.Row>
+                        <Table.HeaderCell textAlign='center' width='1'>#</Table.HeaderCell>
+                        <Table.HeaderCell textAlign='left'>Megnevezés</Table.HeaderCell>
+                        <Table.HeaderCell textAlign='left'>Sablon</Table.HeaderCell>
+                        <Table.HeaderCell textAlign='center' width='1'>&nbsp;</Table.HeaderCell>
+                    </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                    {
+                        this.state.data.map((s) => (
+                            <Table.Row key={s.sablon_id} onClick={ () => null }>
+                                <Table.Cell textAlign='center'>{ s.sablon_id }</Table.Cell>
+                                <Table.Cell textAlign='left'>{ s.megnevezes }</Table.Cell>
+                                <Table.Cell textAlign='left'>{ s.sablon.substring(0, 80) }...</Table.Cell>
+                                <Table.Cell textAlign='center'>
+                                    <Icon link name='edit' color='blue' onClick={ () => this.setState({ openModalEditSablon: true, sablonData: s }) }/>
+                                    <Icon link name='trash' color='red' onClick={ () => this.setState({ deleteSablonConfirmWindow: true, deleteSablonId: s.sablon_id }) }/>
+                                </Table.Cell>
+                            </Table.Row>
+                        ))
+                    }
+                </Table.Body>
+            </Table>
+        )
+    }
+
+    renderInit(){
+        if(this.state.loadingPage && this.state.data.length === 0){
+            return <PlaceholderComponent />
+        }else if(!this.state.loadingPage && this.state.data.length === 0){
+            return <h4>Még nincs sablon létrehozva!</h4>
+        }else{
+            return this.renderList()
+        }
     }
 
   render(){
@@ -58,35 +100,7 @@ class ArajanlatSablonokPage extends Component {
 
 
             <Container>
-            {
-                (this.state.data.length !== 0) ? (
-                    <Table striped>
-                        <Table.Header>
-                            <Table.Row>
-                                <Table.HeaderCell textAlign='center' width='1'>#</Table.HeaderCell>
-                                <Table.HeaderCell textAlign='left'>Megnevezés</Table.HeaderCell>
-                                <Table.HeaderCell textAlign='left'>Sablon</Table.HeaderCell>
-                                <Table.HeaderCell textAlign='center' width='1'>&nbsp;</Table.HeaderCell>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {
-                                this.state.data.map((s) => (
-                                    <Table.Row key={s.sablon_id} onClick={ () => null }>
-                                        <Table.Cell textAlign='center'>{ s.sablon_id }</Table.Cell>
-                                        <Table.Cell textAlign='left'>{ s.megnevezes }</Table.Cell>
-                                        <Table.Cell textAlign='left'>{ s.sablon.substring(0, 80) }...</Table.Cell>
-                                        <Table.Cell textAlign='center'>
-                                            <Icon link name='edit' color='blue' onClick={ () => this.setState({ openModalEditSablon: true, sablonData: s }) }/>
-                                            <Icon link name='trash' color='red' onClick={ () => this.setState({ deleteSablonConfirmWindow: true, deleteSablonId: s.sablon_id }) }/>
-                                        </Table.Cell>
-                                    </Table.Row>
-                                ))
-                            }
-                        </Table.Body>
-                    </Table>
-                ) : <h4>Még nincs sablon létrehozva!</h4>
-            }
+            { this.renderInit() }
             </Container>
 
             <NewSablonModal openModal={this.state.openModalNewSablon} closeModal={this.closeModal} getData={() => this.getData()}/>
