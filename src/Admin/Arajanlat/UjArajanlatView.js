@@ -25,11 +25,14 @@ class UjArajanlatViewPage extends Component {
         .then(res => {
             var response = res.data;
             if(response){
-                console.log(response)
                 this.setState({ data: response, company_data: response.company, arjegyzek: response.arjegyzek });
             }
         })
         .catch(error => console.log("Error: "+error));
+    }
+
+    italic(string){
+        return <React.Fragment><br /><span style={{ fontStyle: 'italic', fontSize: '11px' }}>{string}</span></React.Fragment>;
     }
 
     renderInfo(){

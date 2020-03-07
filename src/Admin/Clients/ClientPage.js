@@ -234,7 +234,6 @@ class ClientPage extends Component {
     API.post('ugyfel/deleteUser/', 'company_id='+this.state.company_id+'&user_id='+this.state.deleteUserId+'&API_SECRET='+API_SECRET)
     .then(res => {
         var response = res.data;
-        console.log(res)
         if(response.success){
           this.setState({ deleteUserId: 0, deleteUserConfirmWindow: false }, () => this.getUsersData());
         }
@@ -246,7 +245,6 @@ class ClientPage extends Component {
     API.post('ugyfel/deleteClient/', 'company_id='+this.state.company_id+'&API_SECRET='+API_SECRET)
     .then(res => {
         var response = res.data;
-        console.log(res)
         if(response.success){
           this.setState({ deleteClientConfirmWindow: false }, () => this.props.history.push("/admin/clients"));
         }
