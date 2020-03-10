@@ -3,6 +3,8 @@ import { Container, Table, Header } from 'semantic-ui-react'
 import API, { API_SECRET } from '../../api';
 
 import PageHeaderAdmin from '../components/Header'
+import FooterUgyfel from '../../Ugyfel/components/Footer';
+import '../../Ugyfel/components/Footer.css';
 import PlaceholderComponent from '../../components/Placeholder/Placeholder';
 
 class ArajanlatokPage extends Component {
@@ -47,7 +49,7 @@ class ArajanlatokPage extends Component {
                         this.state.data.map((arajanlat) => (
                             <Table.Row key={arajanlat.arajanlat_id} onClick={ () => this.selectArajanlat(arajanlat.arajanlat_id) } className="stripedTableTr" positive={ (arajanlat.feldolgozva === "1") ? true : false }>
                                 <Table.Cell>{arajanlat.arajanlat_id}</Table.Cell>
-                                <Table.Cell>{arajanlat.company_data.cegnev}</Table.Cell>
+                                <Table.Cell>{(arajanlat.company_data) ? arajanlat.company_data.cegnev : ''}</Table.Cell>
                                 <Table.Cell>{arajanlat.megnevezes}</Table.Cell>
                                 <Table.Cell>{arajanlat.datum}</Table.Cell>
                                 <Table.Cell>{arajanlat.gyartasi_hatarido}</Table.Cell>
@@ -71,7 +73,8 @@ class ArajanlatokPage extends Component {
 
     render(){
         return (
-            <Container>
+            <div className="Site">
+              <Container className="Site-content">
                 <PageHeaderAdmin />
                 <p style={{ marginTop: '5em' }}></p>
                 <div style={{ paddingBottom: '3em' }}>
@@ -79,6 +82,8 @@ class ArajanlatokPage extends Component {
                 </div>
                     { this.renderInit() }
             </Container>
+            <FooterUgyfel />
+            </div>
         )
     }
 }

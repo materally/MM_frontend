@@ -4,6 +4,8 @@ import API, { API_SECRET } from '../../api';
 import PlaceholderComponent from '../../components/Placeholder/Placeholder';
 
 import PageHeaderAdmin from '../components/Header'
+import FooterUgyfel from '../../Ugyfel/components/Footer';
+import '../../Ugyfel/components/Footer.css';
 
 class UjArajanlatokPage extends Component {
     constructor(props) {
@@ -47,7 +49,7 @@ class UjArajanlatokPage extends Component {
                         this.state.data.map((arajanlat) => (
                             <Table.Row key={arajanlat.uj_arajanlat_id} onClick={ () => this.selectArajanlat(arajanlat.uj_arajanlat_id) } className="stripedTableTr">
                                 <Table.Cell>{arajanlat.azonosito}</Table.Cell>
-                                <Table.Cell>{arajanlat.cimzett_nev} ({arajanlat.company.cegnev})</Table.Cell>
+                                <Table.Cell>{arajanlat.cimzett_nev} ({(arajanlat.company) ? arajanlat.company.cegnev : ''})</Table.Cell>
                                 <Table.Cell>{arajanlat.felado_nev}</Table.Cell>
                                 <Table.Cell>{arajanlat.megnevezes}</Table.Cell>
                                 <Table.Cell>{arajanlat.datum}</Table.Cell>
@@ -71,7 +73,8 @@ class UjArajanlatokPage extends Component {
 
     render(){
         return (
-            <Container>
+            <div className="Site">
+              <Container className="Site-content">
                 <PageHeaderAdmin />
                 <p style={{ marginTop: '5em' }}></p>
                 <div style={{ paddingBottom: '3em' }}>
@@ -79,6 +82,8 @@ class UjArajanlatokPage extends Component {
                 </div>
                     { this.renderInit() }
             </Container>
+            <FooterUgyfel />
+            </div>
         )
     }
 }

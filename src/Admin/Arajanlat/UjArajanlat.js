@@ -2,10 +2,12 @@ import React, { Component } from 'react';
 import { Container, Header, Form, Button, Confirm, Divider, Table, Select, Icon } from 'semantic-ui-react'
 import TextareaAutosize from "react-textarea-autosize";
 import Swal from 'sweetalert2';
-import { numberWithSpace, calcBrutto } from '../../Helpers/Helpers'
+import { numberWithSpace, calcBrutto, round } from '../../Helpers/Helpers'
 import API, { API_SECRET } from '../../api';
 
 import PageHeaderAdmin from '../components/Header'
+import FooterUgyfel from '../../Ugyfel/components/Footer';
+import '../../Ugyfel/components/Footer.css';
 
 class UjArajanlatPage extends Component {
     constructor(props) {
@@ -42,7 +44,6 @@ class UjArajanlatPage extends Component {
         this.handleChange_Megnevezes = this.handleChange_Megnevezes.bind(this)
         this.handleChange_Client = this.handleChange_Client.bind(this)
         this.loadData();
-        this.getArjegyzek();
         this.getClients();
     }
 
@@ -72,7 +73,7 @@ class UjArajanlatPage extends Component {
     }
 
     getArjegyzek(){
-        API.get(`arjegyzek`, {params: {'API_SECRET': API_SECRET} })
+        API.get(`ugyfel/ugyfelArjegyzek/${this.state.cimzett_company_id}`, {params: {'API_SECRET': API_SECRET} })
         .then(res => {
             var response = res.data;
             if(response){
@@ -82,9 +83,7 @@ class UjArajanlatPage extends Component {
                         key: a.ar_id,
                         value: a.ar_id,
                         text: a.megnevezes,
-                        vip_ar: a.eladasi_netto_vip_ar,
-                        nagyker_ar: a.eladasi_netto_nagyker_ar,
-                        kisker_ar: a.eladasi_netto_kisker_ar,
+                        eladasi_ar: a.eladasi_ar,
                         mennyiseg_egysege: a.mennyiseg_egysege
                     }
                     return array.push(temp)
@@ -120,13 +119,13 @@ class UjArajanlatPage extends Component {
 
     handleAddAr = () => {
         this.setState({
-            arjegyzekRows: this.state.arjegyzekRows.concat([{ ar_id: 0, megnevezes: '', mennyiseg: 1, mennyiseg_egysege: '', netto_egysegar: 0, vip_ar: 0, nagyker_ar: 0, kisker_ar: 0, megjegyzes: '' }])
+            arjegyzekRows: this.state.arjegyzekRows.concat([{ ar_id: 0, megnevezes: '', mennyiseg: 1, mennyiseg_egysege: '', netto_egysegar: 0, megjegyzes: '' }])
         }, () => this.calcSum());
     };
 
     handleAddArEgyedi = () => {
         this.setState({
-            arjegyzekRows: this.state.arjegyzekRows.concat([{ ar_id: -1, megnevezes: '', mennyiseg: 1, mennyiseg_egysege: '', netto_egysegar: 0, vip_ar: 0, nagyker_ar: 0, kisker_ar: 0, megjegyzes: '' }])
+            arjegyzekRows: this.state.arjegyzekRows.concat([{ ar_id: -1, megnevezes: '', mennyiseg: 1, mennyiseg_egysege: '', netto_egysegar: 0, megjegyzes: '' }])
         }, () => this.calcSum());
     };
 
@@ -142,16 +141,16 @@ class UjArajanlatPage extends Component {
             this.state.arjegyzekRows.map(a => (
                 total += a.netto_egysegar*a.mennyiseg
             ))
-            this.setState({ calculatedSum: total })
+            this.setState({ calculatedSum: round(total) })
         }
     }
 
     handleChange_Megnevezes(e, data)  {
-        const { text, vip_ar, nagyker_ar, kisker_ar, mennyiseg_egysege } = data.options.find(o => o.value === data.value);
+        const { text, eladasi_ar, mennyiseg_egysege } = data.options.find(o => o.value === data.value);
         const idx = data.idx;
         const n = this.state.arjegyzekRows.map((a, sidx) => {
             if (idx !== sidx) return a;
-            return {...a, ar_id: data.value, megnevezes: text,  mennyiseg_egysege: mennyiseg_egysege, netto_egysegar: kisker_ar, vip_ar: vip_ar, nagyker_ar: nagyker_ar, kisker_ar: kisker_ar }
+            return {...a, ar_id: data.value, megnevezes: text,  mennyiseg_egysege: mennyiseg_egysege, netto_egysegar: eladasi_ar }
         });
         this.setState({ arjegyzekRows: n }, () => this.calcSum());
     }
@@ -191,14 +190,6 @@ class UjArajanlatPage extends Component {
         this.setState({ arjegyzekRows: n }, () => this.calcSum());
     };
 
-    setNettoEgysegarViaClick(which, idx){
-        const n = this.state.arjegyzekRows.map((a, sidx) => {
-            if (idx !== sidx) return a;
-            return { ...a, netto_egysegar: a[which] };
-        })
-        this.setState({ arjegyzekRows: n }, () => this.calcSum());
-    }
-
     handleChange_Megjegyzes = idx => evt => {
         const n = this.state.arjegyzekRows.map((a, sidx) => {
             if (idx !== sidx) return a;
@@ -209,7 +200,7 @@ class UjArajanlatPage extends Component {
 
     handleChange_Client(e, data)  {
         const { text, email, telefonszam, company_id } = data.options.find(o => o.value === data.value);
-        this.setState({ cimzett_nev: text, cimzett_email: email, cimzett_telefonszam: telefonszam, cimzett_user_id: data.value, cimzett_company_id: company_id });
+        this.setState({ cimzett_nev: text, cimzett_email: email, cimzett_telefonszam: telefonszam, cimzett_user_id: data.value, cimzett_company_id: company_id }, () => this.getArjegyzek());
     }
 
     submitBtn(){
@@ -278,7 +269,8 @@ class UjArajanlatPage extends Component {
 
     render(){
         return (
-            <Container>
+            <div className="Site">
+              <Container className="Site-content">
                 <PageHeaderAdmin />
                 <p style={{ marginTop: '5em' }}></p>
                 <div style={{ paddingBottom: '3em' }}>
@@ -353,13 +345,10 @@ class UjArajanlatPage extends Component {
                                     <Table.Header>
                                         <Table.Row>
                                             <Table.HeaderCell textAlign='center' width='1'>#</Table.HeaderCell>
-                                            <Table.HeaderCell textAlign='center' width='4'>Megnevezés</Table.HeaderCell>
-                                            <Table.HeaderCell textAlign='center' width='1'>Mennyiség</Table.HeaderCell>
-                                            <Table.HeaderCell textAlign='center' width='1'>Me.egys.</Table.HeaderCell>
-                                            <Table.HeaderCell textAlign='center' width='2'>Nettó VIP ár</Table.HeaderCell>
-                                            <Table.HeaderCell textAlign='center' width='2'>Nettó nagyker ár</Table.HeaderCell>
-                                            <Table.HeaderCell textAlign='center' width='2'>Nettó kisker ár</Table.HeaderCell>
-                                            <Table.HeaderCell textAlign='center' width='2'>Nettó egys.ár</Table.HeaderCell>
+                                            <Table.HeaderCell textAlign='center' width='6'>Megnevezés</Table.HeaderCell>
+                                            <Table.HeaderCell textAlign='center' width='2'>Mennyiség</Table.HeaderCell>
+                                            <Table.HeaderCell textAlign='center' width='2'>Me.egys.</Table.HeaderCell>
+                                            <Table.HeaderCell textAlign='center' width='3'>Nettó egys.ár</Table.HeaderCell>
                                             <Table.HeaderCell textAlign='center'>&nbsp;</Table.HeaderCell>
                                         </Table.Row>
                                     </Table.Header>
@@ -387,21 +376,6 @@ class UjArajanlatPage extends Component {
                                                             <input type='text' placeholder='Me.egys.' value={ar.mennyiseg_egysege} onChange={this.handleChange_MennyisegEgysege(idx)}/>
                                                         </Form.Field>
                                                     </Table.Cell>
-                                                    <Table.Cell onClick={ () => this.setNettoEgysegarViaClick('vip_ar', idx) } style={{ cursor:'pointer' }}>
-                                                        <Form.Field>
-                                                            <input type='number' placeholder='VIP' value={ar.vip_ar} readOnly disabled/>
-                                                        </Form.Field>
-                                                    </Table.Cell>
-                                                    <Table.Cell onClick={ () => this.setNettoEgysegarViaClick('nagyker_ar', idx) } style={{ cursor:'pointer' }}>
-                                                        <Form.Field>
-                                                            <input type='number' placeholder='Nagyker' value={ar.nagyker_ar} readOnly disabled/>
-                                                        </Form.Field>
-                                                    </Table.Cell>
-                                                    <Table.Cell onClick={ () => this.setNettoEgysegarViaClick('kisker_ar', idx) } style={{ cursor:'pointer' }}>
-                                                        <Form.Field>
-                                                            <input type='number' placeholder='Kisker' value={ar.kisker_ar} readOnly disabled/>
-                                                        </Form.Field>
-                                                    </Table.Cell>
                                                     <Table.Cell>
                                                         <Form.Field required>
                                                             <input type='number' placeholder='Nettó egységár' value={ar.netto_egysegar} onChange={this.handleChange_NettoEgysegar(idx)}/>
@@ -426,7 +400,7 @@ class UjArajanlatPage extends Component {
                                 </Table.Body>
                                 <Table.Footer>
                                     <Table.Row>
-                                        <Table.HeaderCell colSpan='7' textAlign='right' style={{ fontWeight:'bold' }}>Összesen: </Table.HeaderCell>
+                                        <Table.HeaderCell colSpan='4' textAlign='right' style={{ fontWeight:'bold' }}>Összesen: </Table.HeaderCell>
                                         <Table.Cell positive textAlign='right'><b>{numberWithSpace(this.state.calculatedSum)} Ft</b></Table.Cell>
                                         <Table.HeaderCell>Bruttó: <b>{numberWithSpace(calcBrutto(this.state.calculatedSum))} Ft</b></Table.HeaderCell>
                                     </Table.Row>
@@ -470,6 +444,8 @@ class UjArajanlatPage extends Component {
                     onConfirm={ () => this.setState({ tartalom: this.state.loadingTartalom, loadSablonConfirmWindow: false }) }
                 />
             </Container>
+            <FooterUgyfel />
+            </div>
         )
     }
 }

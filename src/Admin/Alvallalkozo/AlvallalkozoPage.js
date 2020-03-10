@@ -3,6 +3,8 @@ import { Container, Button, Message, Tab, Confirm, Form, TextArea } from 'semant
 import API, { API_SECRET } from '../../api';
 
 import PageHeaderAdmin from '../components/Header'
+import FooterUgyfel from '../../Ugyfel/components/Footer';
+import '../../Ugyfel/components/Footer.css';
 import PlaceholderComponent from '../../components/Placeholder/Placeholder';
 
 class AlvallalkozoPage extends Component {
@@ -207,7 +209,8 @@ class AlvallalkozoPage extends Component {
 
     render(){
         return (
-            <Container>
+            <div className="Site">
+              <Container className="Site-content">
                 <PageHeaderAdmin />
                 <p style={{ marginTop: '5em' }}></p>
                 <Button basic labelPosition='left' icon='left chevron' content='Vissza' onClick={ () => this.props.history.push("/admin/alvallalkozo") } />
@@ -224,6 +227,8 @@ class AlvallalkozoPage extends Component {
                 />
 
             </Container>
+            <FooterUgyfel />
+            </div>
         )
     }
 }

@@ -8,9 +8,12 @@ import UgyfelLogin from '../UgyfelLogin/UgyfelLogin'
 import UjArajanlat from '../Arajanlat/UjArajanlat'
 import ErrorPage from '../../ErrorPage/ErrorPage'
 import ArajanlataimPage from '../Arajanlat/Arajanlataim';
+import UjArajanlatokPage from '../Arajanlat/UjArajanlatok';
+import UjArajanlatView from '../Arajanlat/UjArajanlatView';
 import ArajanlatPage from '../Arajanlat/Arajanlat';
 import BeallitasokPage from '../Beallitasok/BeallitasokPage';
 import LostPasswordPage from '../LostPassword/LostPasswordPage';
+import UgyfelArjegyzek from '../Arjegyzek/Arjegyzek';
 
 class UgyfelRoot extends Component {
   constructor(props) {
@@ -65,6 +68,8 @@ class UgyfelRoot extends Component {
             {!this.state.token && <Redirect exact from="/ugyfel/uj_arajanlat" to="/ugyfel/login" />}
             {!this.state.token && <Redirect exact from="/ugyfel/arajanlataim" to="/ugyfel/login" />}
             {!this.state.token && <Redirect exact from="/ugyfel/beallitasok" to="/ugyfel/login" />}
+            {!this.state.token && <Redirect exact from="/ugyfel/arjegyzek" to="/ugyfel/login" />}
+            {!this.state.token && <Redirect exact from="/ugyfel/uj_arajanlataim" to="/ugyfel/login" />}
             {!this.state.token && (
               <Route path="/ugyfel/login" component={UgyfelLogin} exact/>
             )}
@@ -87,6 +92,15 @@ class UgyfelRoot extends Component {
             )}
             {this.state.token && (
               <Route path="/ugyfel/beallitasok/" component={BeallitasokPage} exact/>
+            )}
+            {this.state.token && (
+              <Route path="/ugyfel/arjegyzek/" component={UgyfelArjegyzek} exact/>
+            )}
+            {this.state.token && (
+              <Route path="/ugyfel/uj_arajanlataim/" component={UjArajanlatokPage} exact/>
+            )}
+            {this.state.token && (
+              <Route path="/ugyfel/uj_arajanlataim/:uj_arajanlat_id" component={UjArajanlatView} exact/>
             )}
 
             <Route component={ErrorPage}/> 

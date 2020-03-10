@@ -5,6 +5,8 @@ import './AlvallalkozoPage.css';
 import PlaceholderComponent from '../../components/Placeholder/Placeholder';
 
 import PageHeaderAdmin from '../components/Header'
+import FooterUgyfel from '../../Ugyfel/components/Footer';
+import '../../Ugyfel/components/Footer.css';
 import NewAlvallalkozoModal from './NewAlvallalkozoModal';
 
 class AlvallalkozokPage extends Component {
@@ -74,7 +76,8 @@ class AlvallalkozokPage extends Component {
 
     render(){
         return (
-            <Container>
+            <div className="Site">
+              <Container className="Site-content">
                 <PageHeaderAdmin />
                 <p style={{ marginTop: '5em' }}></p>
                 <div style={{ paddingBottom: '3em' }}>
@@ -85,6 +88,8 @@ class AlvallalkozokPage extends Component {
                 
                 <NewAlvallalkozoModal openModal={this.state.openModalNewAlvallalkozo} closeModal={this.closeModal} getData={() => this.getData()}/>
             </Container>
+            <FooterUgyfel />
+            </div>
         )
     }
 }

@@ -1,14 +1,17 @@
 import React, { Component } from 'react';
-import { Container, Button, Card, Tab, Table, Icon, Confirm, Divider, Header } from 'semantic-ui-react'
+import { Container, Button, Card, Tab, Table, Icon, Confirm, Divider, Header, Input } from 'semantic-ui-react'
 import API, { API_SECRET } from '../../api';
 
 import PageHeaderAdmin from '../components/Header'
+import FooterUgyfel from '../../Ugyfel/components/Footer';
+import '../../Ugyfel/components/Footer.css';
 import PlaceholderComponent from '../../components/Placeholder/Placeholder';
 import NewDeliveryModal from './NewDeliveryModal';
 import EditDeliveryModal from './EditDeliveryModal';
 import EditUserModal from './EditUserModal';
 import NewUserModal from './NewUserModal';
 import Swal from 'sweetalert2';
+import { numberWithSpace, calcBrutto } from '../../Helpers/Helpers'
 
 class ClientPage extends Component {
   constructor(props) {
@@ -16,6 +19,7 @@ class ClientPage extends Component {
     this.state = { 
       company_id: this.props.match.params.company_id,
       data: [],
+      dataArjegyzek: [],
       price_scope: '',
       deleteConfirmWindow: false,
       deleteDeliveryId: 0,
@@ -32,13 +36,23 @@ class ClientPage extends Component {
       editUserData: [],
       openModalNewUser: false,
       deleteClientConfirmWindow: false,
+
+      priceEdit: false,
+      priceEditId: 0,
+      priceEditValue: 0
     }
     this.getData()
     this.getUsersData()
+    this.getArjegyzekData()
+    this.handleChange = this.handleChange.bind(this)
   }
 
   closeModal = () => {
     this.setState({ openModal: false, openModalEdit: false, openModalUserEdit: false, openModalNewUser: false });
+  }
+
+  handleChange(event){
+    this.setState({[event.target.name]: event.target.value});
   }
 
   getData(){
@@ -62,6 +76,17 @@ class ClientPage extends Component {
     })
     .catch(error => console.log("Error: "+error));
   }
+
+  getArjegyzekData(){
+    API.get(`ugyfel/ugyfelArjegyzek/${this.state.company_id}`, {params: {'API_SECRET': API_SECRET} })
+    .then(res => {
+        var response = res.data;
+        if(response){
+            this.setState({ dataArjegyzek: response });
+        }
+    })
+    .catch(error => console.log("Error: "+error));
+}
 
   pageInfo(){
     return(  
@@ -252,6 +277,75 @@ class ClientPage extends Component {
     .catch(error => console.log("Error: "+error));
   }
 
+  pageArjegyzek(){
+    return (
+      <React.Fragment>
+        <Table striped compact='very' celled size='small'>
+              <Table.Header>
+              <Table.Row>
+                  <Table.HeaderCell textAlign='center'>Megnevezés</Table.HeaderCell>
+                  <Table.HeaderCell textAlign='center'>Menny. egys.</Table.HeaderCell>
+                  <Table.HeaderCell textAlign='center'>Mennyiség</Table.HeaderCell>
+                  <Table.HeaderCell textAlign='center'>Megjegyzés</Table.HeaderCell>
+                  <Table.HeaderCell textAlign='center'>Eladási nettó ár</Table.HeaderCell>
+                  <Table.HeaderCell textAlign='center'>Eladási bruttó ár</Table.HeaderCell>
+              </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                  {
+                      this.state.dataArjegyzek.map((ar) => (
+                          <Table.Row key={ar.ar_id} onClick={ () => null }>
+                              <Table.Cell>{ ar.megnevezes }</Table.Cell>
+                              <Table.Cell textAlign='center'>{ ar.mennyiseg_egysege }</Table.Cell>
+                              <Table.Cell textAlign='center'>{ ar.mennyiseg }</Table.Cell>
+                              <Table.Cell textAlign='right'>{ ar.megjegyzes }</Table.Cell>
+                              {
+                                (this.state.priceEdit && this.state.priceEditId === ar.u_a_id) ? this.priceEdit() : (
+                                  <Table.Cell onClick={ () => this.onClickPriceEdit(ar.u_a_id, ar.eladasi_ar) } textAlign='right' style={{ color: '#E80D8A', cursor: 'pointer' }}><b>{ numberWithSpace(ar.eladasi_ar) } Ft</b></Table.Cell>
+                                )
+                              }
+                              <Table.Cell textAlign='right'>{ numberWithSpace(calcBrutto(ar.eladasi_ar)) } Ft</Table.Cell>
+                          </Table.Row>
+                      ))
+                  }
+              </Table.Body>
+          </Table>
+      </React.Fragment>
+    )
+  }
+
+  priceEdit(){
+    return (
+      <Table.Cell>
+        <Input
+          focus 
+          placeholder='Eladási ár' 
+          name='priceEditValue' 
+          value={this.state.priceEditValue} 
+          onChange={this.handleChange}
+          icon={{ name: 'save', circular: true, link: true, onClick: () => this.savePriceEdit(), color: 'green' }}
+        />
+      </Table.Cell>
+    )
+  }
+
+  savePriceEdit(){
+    API.post('ugyfel/changeUgyfelArjegyzek/'+this.state.company_id+'/'+this.state.priceEditId, 'eladasi_ar='+this.state.priceEditValue+'&API_SECRET='+API_SECRET)
+    .then(res => {
+        var response = res.data;
+        if(response.success){
+          this.getArjegyzekData()
+        }
+    })
+    .then(k => {
+      this.setState({ priceEdit: false, priceEditId: 0, priceEditValue: 0 })
+    })
+    .catch(error => console.log("Error: "+error));    
+  }
+
+  onClickPriceEdit(u_a_id, price){
+    this.setState({ priceEdit: true, priceEditId: u_a_id, priceEditValue: price })
+  }
 
   renderInfo(){
     const menus = [
@@ -268,6 +362,10 @@ class ClientPage extends Component {
         render: () => this.pageDelivery(),
       },
       {
+        menuItem: 'Árjegyzék',
+        render: () => this.pageArjegyzek(),
+      },
+      {
         menuItem: 'Beállítások',
         render: () => this.pageSettings(),
       }
@@ -282,7 +380,8 @@ class ClientPage extends Component {
 
   render() { 
     return ( 
-      <Container>
+      <div className="Site">
+        <Container className="Site-content">
         <PageHeaderAdmin />
         <p style={{ marginTop: '5em' }}></p>
         <Button basic labelPosition='left' icon='left chevron' content='Vissza' onClick={ () => this.props.history.push("/admin/clients") } />
@@ -339,6 +438,8 @@ class ClientPage extends Component {
           company_id={this.state.company_id}
         />
       </Container>
+      <FooterUgyfel />
+      </div>  
     );
   }
 }

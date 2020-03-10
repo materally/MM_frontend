@@ -9,10 +9,10 @@ class FooterUgyfel extends Component {
                     <p>
                         Ügyviteli rendszerünket cégünk az <b>MM Nyomdaipari Kft.</b> üzemelteti és a <a  href="https://creativesales.hu/" target="_blank" rel="noopener noreferrer">Creative Sales Consulting</a> készítette.
                         <br />
-                        Utolsó frissítés: 2020. 03. 06.
+                        Utolsó frissítés: 2020. 03. 10.
                     </p>
                 </Container>
-                </Segment>
+            </Segment>
         )
     }
 } 

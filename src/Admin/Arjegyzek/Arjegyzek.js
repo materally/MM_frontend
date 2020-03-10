@@ -5,6 +5,8 @@ import { numberWithSpace } from '../../Helpers/Helpers'
 import PlaceholderComponent from '../../components/Placeholder/Placeholder';
 
 import PageHeaderAdmin from '../components/Header'
+import FooterUgyfel from '../../Ugyfel/components/Footer';
+import '../../Ugyfel/components/Footer.css';
 import NewArModal from './NewArModal';
 import EditArModal from './EditArModal';
 
@@ -58,10 +60,16 @@ class Arjegyzek extends Component {
                     <Table.HeaderCell textAlign='center'>Megnevezés</Table.HeaderCell>
                     <Table.HeaderCell textAlign='center'>Menny. egys.</Table.HeaderCell>
                     <Table.HeaderCell textAlign='center'>Mennyiség</Table.HeaderCell>
-                    <Table.HeaderCell textAlign='center'>Alapanyag nettó bekerülési ára</Table.HeaderCell>
-                    <Table.HeaderCell textAlign='center'>Nyomtatás nettó bekerülési ára</Table.HeaderCell>
-                    <Table.HeaderCell textAlign='center'>Egyéb költség</Table.HeaderCell>
-                    <Table.HeaderCell textAlign='center'>Bekerülési nettó ár</Table.HeaderCell>
+                    {
+                        (this.state.hideBekerules) ? null : 
+                        (   <React.Fragment>
+                                <Table.HeaderCell textAlign='center'>Alapanyag nettó bekerülési ára</Table.HeaderCell>
+                                <Table.HeaderCell textAlign='center'>Nyomtatás nettó bekerülési ára</Table.HeaderCell>
+                                <Table.HeaderCell textAlign='center'>Egyéb költség</Table.HeaderCell>
+                                <Table.HeaderCell textAlign='center'>Bekerülési nettó ár</Table.HeaderCell>
+                            </React.Fragment>
+                        )
+                    }
                     <Table.HeaderCell textAlign='center'>Megjegyzés</Table.HeaderCell>
                     <Table.HeaderCell textAlign='center'>Eladási nettó VIP ár</Table.HeaderCell>
                     <Table.HeaderCell textAlign='center'>Eladási NAGYKER nettó ár</Table.HeaderCell>
@@ -76,10 +84,17 @@ class Arjegyzek extends Component {
                                 <Table.Cell>{ ar.megnevezes }</Table.Cell>
                                 <Table.Cell textAlign='center'>{ ar.mennyiseg_egysege }</Table.Cell>
                                 <Table.Cell textAlign='center'>{ ar.mennyiseg }</Table.Cell>
-                                <Table.Cell textAlign='right'>{ (this.state.hideBekerules) ? '-' : numberWithSpace(ar.alapanyag_netto_bekereules_ar) + ' Ft' }</Table.Cell>
-                                <Table.Cell textAlign='right'>{ (this.state.hideBekerules) ? '-' : numberWithSpace(ar.nyomtatas_netto_bekerules_ar) + ' Ft' }</Table.Cell>
-                                <Table.Cell textAlign='right'>{ (this.state.hideBekerules) ? '-' : numberWithSpace(ar.egyeb_koltseg) + ' Ft' }</Table.Cell>
-                                <Table.Cell textAlign='right'>{ (this.state.hideBekerules) ? '-' : numberWithSpace(ar.bekerules_netto_ar) + ' Ft' } </Table.Cell>
+                                {
+                                    (this.state.hideBekerules) ? null : 
+                                    (
+                                        <React.Fragment>
+                                            <Table.Cell textAlign='right'>{ numberWithSpace(ar.alapanyag_netto_bekereules_ar) + ' Ft' }</Table.Cell>
+                                            <Table.Cell textAlign='right'>{ numberWithSpace(ar.nyomtatas_netto_bekerules_ar) + ' Ft' }</Table.Cell>
+                                            <Table.Cell textAlign='right'>{ numberWithSpace(ar.egyeb_koltseg) + ' Ft' }</Table.Cell>
+                                            <Table.Cell textAlign='right'>{ numberWithSpace(ar.bekerules_netto_ar) + ' Ft' } </Table.Cell>
+                                        </React.Fragment>
+                                    )
+                                }
                                 <Table.Cell textAlign='right'>{ ar.megjegyzes }</Table.Cell>
                                 <Table.Cell textAlign='right'>{ numberWithSpace(ar.eladasi_netto_vip_ar) } Ft</Table.Cell>
                                 <Table.Cell textAlign='right'>{ numberWithSpace(ar.eladasi_netto_nagyker_ar) } Ft</Table.Cell>
@@ -108,7 +123,8 @@ class Arjegyzek extends Component {
 
     render(){
         return (
-            <React.Fragment>
+            <div className="Site">
+              <Container className="Site-content">
                 <Container>
                     <PageHeaderAdmin />
                     <p style={{ marginTop: '5em' }}></p>
@@ -136,7 +152,9 @@ class Arjegyzek extends Component {
                     onConfirm={ () => this.deleteAr() }
                 />
 
-            </React.Fragment>
+            </Container>
+            <FooterUgyfel />
+            </div>
         )
     }
 }

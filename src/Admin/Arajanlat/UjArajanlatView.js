@@ -7,6 +7,8 @@ import API, { API_SECRET } from '../../api';
 import PlaceholderComponent from '../../components/Placeholder/Placeholder';
 
 import PageHeaderAdmin from '../components/Header'
+import FooterUgyfel from '../../Ugyfel/components/Footer';
+import '../../Ugyfel/components/Footer.css';
 
 class UjArajanlatViewPage extends Component {
     constructor(props) {
@@ -53,7 +55,7 @@ class UjArajanlatViewPage extends Component {
                     </Table.Row>
                     <Table.Row>
                         <Table.Cell>Címzett</Table.Cell>
-                        <Table.Cell><b>{this.state.data.cimzett_nev}</b> - ({this.state.data.cimzett_telefonszam} - {this.state.company_data.cegnev})</Table.Cell>
+                        <Table.Cell><b>{this.state.data.cimzett_nev}</b> - ({this.state.data.cimzett_telefonszam} - {(this.state.company_data) ? this.state.company_data.cegnev : ''})</Table.Cell>
                     </Table.Row>
                     <Table.Row>
                         <Table.Cell width={3}>Megnevezés</Table.Cell>
@@ -127,13 +129,16 @@ class UjArajanlatViewPage extends Component {
 
     render(){
         return (
-            <Container>
+            <div className="Site">
+              <Container className="Site-content">
                 <PageHeaderAdmin />
                 <p style={{ marginTop: '5em' }}></p>
                 <Button basic labelPosition='left' icon='left chevron' content='Vissza' onClick={ () => this.props.history.push("/admin/uj_arajanlatok") }  style={{ marginBottom: '25px' }}/>
                 {(this.state.data.length !== 0) ? this.renderInfo() : <PlaceholderComponent /> }  
                     
             </Container>
+            <FooterUgyfel />
+            </div>
         )
     }
 }

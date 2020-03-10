@@ -3,6 +3,8 @@ import { Container, Table, Header, Button } from 'semantic-ui-react'
 import API, { API_SECRET } from '../../api';
 
 import PageHeaderAdmin from '../components/Header'
+import FooterUgyfel from '../../Ugyfel/components/Footer';
+import '../../Ugyfel/components/Footer.css';
 import PlaceholderComponent from '../../components/Placeholder/Placeholder';
 
 import './ClientsPage.css';
@@ -75,7 +77,8 @@ class ClientsPage extends Component {
 
   render() { 
     return ( 
-      <Container>
+      <div className="Site">
+        <Container className="Site-content">
         <PageHeaderAdmin />
         <p style={{ marginTop: '5em' }}></p>
         <div style={{ paddingBottom: '3em' }}>
@@ -86,6 +89,8 @@ class ClientsPage extends Component {
         
         <NewClientModal openModal={this.state.openModal} closeModal={this.closeModal} getData={() => this.getData()}/>
       </Container>
+      <FooterUgyfel />
+      </div>
     );
   }
 }

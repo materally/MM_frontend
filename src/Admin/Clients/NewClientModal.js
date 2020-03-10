@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Modal, Button, Form, Message } from 'semantic-ui-react'
+import { Modal, Button, Form, Message, Divider, Header, Icon } from 'semantic-ui-react'
 import API, { API_SECRET } from '../../api';
 
 class NewClientModal extends Component {
@@ -11,6 +11,7 @@ class NewClientModal extends Component {
             szamlazasi_cim: '',
             adoszam: '',
             kozponti_telefonszam: '',
+            price_scope: 'kisker',
             submitBtn: true,
             messageHidden: true,
             messageText: '',
@@ -34,8 +35,8 @@ class NewClientModal extends Component {
 
     submitBtnClick(){
         this.setState({ submitBtn: false, buttonLoader: true })
-        const cegnev = this.state.cegnev;
-        const szamlazasi_cim = this.state.szamlazasi_cim;
+        const { cegnev, szamlazasi_cim, price_scope } = this.state;
+
         if(cegnev.trim().length === 0 || szamlazasi_cim.trim().length === 0){
             this.setState({ messageHidden: false, messageText: 'A csillaggal jelölt mezők kitöltése kötelező!', submitBtn: true, buttonLoader: false });
             return;
@@ -43,7 +44,7 @@ class NewClientModal extends Component {
             this.setState({ messageHidden: true, messageText: '', submitBtn: false })
         }
 
-        API.post('ugyfel/create', 'cegnev='+encodeURIComponent(cegnev)+'&szamlazasi_cim='+encodeURIComponent(szamlazasi_cim)+'&adoszam='+this.state.adoszam+'&kozponti_telefonszam='+this.state.kozponti_telefonszam+'&API_SECRET='+API_SECRET)
+        API.post('ugyfel/create', 'cegnev='+encodeURIComponent(cegnev)+'&szamlazasi_cim='+encodeURIComponent(szamlazasi_cim)+'&adoszam='+this.state.adoszam+'&kozponti_telefonszam='+this.state.kozponti_telefonszam+'&price_scope='+price_scope+'&API_SECRET='+API_SECRET)
             .then(res => {
                 var response = res.data;
                 var company_id = response.company_id;
@@ -93,6 +94,19 @@ class NewClientModal extends Component {
                             <label>Központi telefonszám</label>
                             <input placeholder='Központi telefonszám' name='kozponti_telefonszam' value={this.state.kozponti_telefonszam} onChange={this.handleChange} />
                         </Form.Field>
+                        <div style={{ textAlign: 'center', marginBottom: '45px' }}>
+                            <Divider horizontal style={{ marginTop: '40px' }}>
+                                <Header as='h4'>
+                                    <Icon name='tag' />
+                                    Árkedvezmény
+                                </Header>
+                            </Divider>
+                            <Button.Group>
+                                <Button active={(this.state.price_scope === 'kisker') ? true : false} onClick={ () => this.setState({price_scope: 'kisker'}) }>Kisker</Button>
+                                <Button active={(this.state.price_scope === 'nagyker') ? true : false} onClick={ () => this.setState({price_scope: 'nagyker'}) }>Nagyker</Button>
+                                <Button active={(this.state.price_scope === 'vip') ? true : false} onClick={ () => this.setState({price_scope: 'vip'}) }>VIP</Button>
+                            </Button.Group>
+                        </div>
                     </Form>
                     <Message color='red' hidden={this.state.messageHidden}>
                         <b>Hiba!</b> <br />

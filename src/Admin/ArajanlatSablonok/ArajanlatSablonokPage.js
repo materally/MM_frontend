@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Container, Table, Header, Button, Icon, Confirm } from 'semantic-ui-react'
 import PageHeaderAdmin from '../components/Header'
+import FooterUgyfel from '../../Ugyfel/components/Footer';
+import '../../Ugyfel/components/Footer.css';
 import NewSablonModal from './NewSablonModal'
 import EditSablonModal from './EditSablonModal'
 import API, { API_SECRET } from '../../api';
@@ -88,7 +90,8 @@ class ArajanlatSablonokPage extends Component {
 
   render(){
     return (
-        <React.Fragment>
+        <div className="Site">
+          <Container className="Site-content">
             <Container>
                 <PageHeaderAdmin />
                 <p style={{ marginTop: '5em' }}></p>
@@ -117,7 +120,9 @@ class ArajanlatSablonokPage extends Component {
                 onConfirm={ () => this.deleteSablon() }
             />
 
-        </React.Fragment>
+        </Container>
+        <FooterUgyfel />
+        </div>
     );
   }
 }

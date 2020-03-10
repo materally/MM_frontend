@@ -19,8 +19,9 @@ class PageHeaderUgyfel extends Component {
                     </Menu.Item>
 
                     <Menu.Item as={Link} to="/ugyfel/uj_arajanlat">Árajánlatot kérek</Menu.Item>
-                    <Menu.Item as={Link} to="/ugyfel/arajanlataim">Ajánlataim</Menu.Item>
-                    <Menu.Item as={Link} to="/ugyfel/home">Árjegyzék</Menu.Item>
+                    <Menu.Item as={Link} to="/ugyfel/arajanlataim">Kért ajánlataim</Menu.Item>
+                    <Menu.Item as={Link} to="/ugyfel/uj_arajanlataim">Kapott ajánlataim</Menu.Item>
+                    <Menu.Item as={Link} to="/ugyfel/arjegyzek">Árjegyzék</Menu.Item>
                     <Menu.Item as={Link} to="/ugyfel/beallitasok">Beállítások</Menu.Item>
 
                     <Menu.Item name='logout' as='a' onClick={() => this.logout()}>Kijelentkezés</Menu.Item>

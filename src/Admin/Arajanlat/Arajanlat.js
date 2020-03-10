@@ -4,12 +4,14 @@ import API, { API_SECRET } from '../../api';
 import nl2br from 'react-nl2br';
 import Swal from 'sweetalert2';
 import TextareaAutosize from "react-textarea-autosize";
-import { numberWithSpace, calcBrutto } from '../../Helpers/Helpers'
+import { numberWithSpace, calcBrutto, round } from '../../Helpers/Helpers'
 import './Arajanlat.css';
 import ArajanlatToAlvallalkozoModal from './ArajanlatToAlvallalkozoModal';
 import VallalkozoValaszModal from './VallalkozoValaszModal';
 
 import PageHeaderAdmin from '../components/Header'
+import FooterUgyfel from '../../Ugyfel/components/Footer';
+import '../../Ugyfel/components/Footer.css';
 import PlaceholderComponent from '../../components/Placeholder/Placeholder';
 
 class ArajanlatPage extends Component {
@@ -40,7 +42,6 @@ class ArajanlatPage extends Component {
 
             kiajanlasEmail: '',
             kiajanlasTargy: '',
-            kiajanlasTartalom: '',
             calculatedSum: 0,
 
             arjegyzek: [],
@@ -56,7 +57,6 @@ class ArajanlatPage extends Component {
         this.getData();
         this.getAlvallalkozok();
         this.getArajanlatokToAlvallalkozo();
-        this.getArjegyzek();
         this.getArajanlatToUgyfel();
         this.handleChange = this.handleChange.bind(this)
         this.changeAlvallalkozo = this.changeAlvallalkozo.bind(this)
@@ -69,7 +69,8 @@ class ArajanlatPage extends Component {
     }
 
     getArjegyzek(){
-        API.get(`arjegyzek`, {params: {'API_SECRET': API_SECRET} })
+        const { company_data } = this.state
+        API.get(`ugyfel/ugyfelArjegyzek/${company_data.company_id}`, {params: {'API_SECRET': API_SECRET} })
         .then(res => {
             var response = res.data;
             if(response){
@@ -79,9 +80,7 @@ class ArajanlatPage extends Component {
                         key: a.ar_id,
                         value: a.ar_id,
                         text: a.megnevezes,
-                        vip_ar: a.eladasi_netto_vip_ar,
-                        nagyker_ar: a.eladasi_netto_nagyker_ar,
-                        kisker_ar: a.eladasi_netto_kisker_ar,
+                        eladasi_ar: a.eladasi_ar,
                         mennyiseg_egysege: a.mennyiseg_egysege
                     }
                     return array.push(temp)
@@ -98,7 +97,7 @@ class ArajanlatPage extends Component {
             var response = res.data;
             if(response){
                 this.setState({ data: response, user_data: response.user_data, company_data: response.company_data, comments:response.comments }, () => {
-                    this.setState({ kiajanlasEmail: this.state.user_data.email, kiajanlasTargy: 'Árajánlat: '+this.state.data.megnevezes })
+                    this.setState({ kiajanlasEmail: (this.state.user_data) ? this.state.user_data.email : '', kiajanlasTargy: 'Árajánlat: '+this.state.data.megnevezes }, () => { this.getArjegyzek(); })
                 });
             }else{
                 this.props.history.push("/admin/arajanlatok");
@@ -114,6 +113,7 @@ class ArajanlatPage extends Component {
             }
         })
         .catch(error => console.log("Error: "+error));
+
     }
 
     getArajanlatokToAlvallalkozo(){
@@ -164,13 +164,18 @@ class ArajanlatPage extends Component {
     }
 
     pageArajanlat(){
+        const cegnev = (this.state.company_data) ? this.state.company_data.cegnev : ''
+        const email = (this.state.user_data) ? this.state.user_data.email : '#'
+        const vezeteknev = (this.state.user_data) ? this.state.user_data.vezeteknev : ''
+        const keresztnev = (this.state.user_data) ? this.state.user_data.keresztnev : ''
+        const telefonszam = (this.state.user_data) ? this.state.user_data.telefonszam : ''
         return (
             <React.Fragment>
             <Table definition>
                 <Table.Body>
                     <Table.Row>
                         <Table.Cell>Árajánlat kérő</Table.Cell>
-                        <Table.Cell><b>{this.state.company_data.cegnev}</b> - {this.state.user_data.vezeteknev} {this.state.user_data.keresztnev} ({this.state.user_data.telefonszam} - <a href={"mailto:"+this.state.user_data.email}>{this.state.user_data.email}</a>)</Table.Cell>
+                        <Table.Cell><b>{cegnev}</b> - {vezeteknev} {keresztnev} ({telefonszam} - <a href={"mailto:" + email}>{email}</a>)</Table.Cell>
                     </Table.Row>
                     <Table.Row>
                         <Table.Cell width={3}>Megnevezés</Table.Cell>
@@ -467,7 +472,7 @@ class ArajanlatPage extends Component {
             var response4 = res4.data;
             if(response4){
 
-                let tartalom = 'Szia ' + response4.keresztnev + ', \n\nSzeretnék árajánlatot kérni tőled az alábbi munkára:\n\n'+this.state.data.tartalom+'\n\nA határidő, amire el kellene készülnie legkésőbb <b>'+this.state.data.gyartasi_hatarido+'</b>.\n\nLégy szíves mielőbb reagálni és lehetőség szerint ma holnap küldj nekünk ajánlatot. Ha bármi kérdésed van, nyugodtan írj vagy hívj.\n\nAz alábbi linken tudsz nekünk válaszolni: <a href="{url}" target="_blank">{url}</a>\n\nKöszönettel és üdvözlettel\n<b>'+this.state.adminInfo.vezeteknev+' '+this.state.adminInfo.keresztnev+'</b>\nMM Nyomdaipari Kft.\n<a href="tel:'+this.state.adminInfo.telefonszam+'">'+this.state.adminInfo.telefonszam+'</a>\n<a href="https://magentamedia.hu/" target="_blank">www.magentamedia.hu</a>'
+                let tartalom = 'Szia ' + response4.keresztnev + ', \n\nSzeretnék árajánlatot kérni tőled az alábbi munkára: <b>'+this.state.data.megnevezes+'</b>\n\n'+this.state.data.tartalom+'\n\nA határidő, amire el kellene készülnie legkésőbb <b>'+this.state.data.gyartasi_hatarido+'</b>.\n\nLégy szíves mielőbb reagálni és lehetőség szerint még ma küldj nekünk ajánlatot. Ha bármi kérdésed van, nyugodtan írj vagy hívj.\n\nAz alábbi linken tudsz nekünk válaszolni: <a href="{url}" target="_blank">{url}</a>\n\nKöszönettel és üdvözlettel\n<b>'+this.state.adminInfo.vezeteknev+' '+this.state.adminInfo.keresztnev+'</b>\nMM Nyomdaipari Kft.\n<a href="tel:'+this.state.adminInfo.telefonszam+'">'+this.state.adminInfo.telefonszam+'</a>\n<a href="https://magentamedia.hu/" target="_blank">www.magentamedia.hu</a>'
 
                 this.setState({ emailCim: response4.email, selectedAlvallalkozo_id: response4.alvallalkozo_id, emailTargy: 'Árajánlatkérés: '+this.state.data.megnevezes, emailTartalom: tartalom });
             }
@@ -476,11 +481,11 @@ class ArajanlatPage extends Component {
     }
 
     handleChange_Megnevezes(e, data)  {
-        const { text, vip_ar, nagyker_ar, kisker_ar, mennyiseg_egysege } = data.options.find(o => o.value === data.value);
+        const { text, eladasi_ar, mennyiseg_egysege } = data.options.find(o => o.value === data.value);
         const idx = data.idx;
         const n = this.state.arjegyzekRows.map((a, sidx) => {
             if (idx !== sidx) return a;
-            return {...a, ar_id: data.value, megnevezes: text,  mennyiseg_egysege: mennyiseg_egysege, netto_egysegar: kisker_ar, vip_ar: vip_ar, nagyker_ar: nagyker_ar, kisker_ar: kisker_ar }
+            return {...a, ar_id: data.value, megnevezes: text,  mennyiseg_egysege: mennyiseg_egysege, netto_egysegar: eladasi_ar }
         });
         this.setState({ arjegyzekRows: n }, () => this.calcSum());
     }
@@ -520,14 +525,6 @@ class ArajanlatPage extends Component {
         this.setState({ arjegyzekRows: n }, () => this.calcSum());
     };
 
-    setNettoEgysegarViaClick(which, idx){
-        const n = this.state.arjegyzekRows.map((a, sidx) => {
-            if (idx !== sidx) return a;
-            return { ...a, netto_egysegar: a[which] };
-        })
-        this.setState({ arjegyzekRows: n }, () => this.calcSum());
-    }
-
     handleChange_Megjegyzes = idx => evt => {
         const n = this.state.arjegyzekRows.map((a, sidx) => {
             if (idx !== sidx) return a;
@@ -544,13 +541,13 @@ class ArajanlatPage extends Component {
 
     handleAddAr = () => {
         this.setState({
-            arjegyzekRows: this.state.arjegyzekRows.concat([{ ar_id: 0, megnevezes: '', mennyiseg: 1, mennyiseg_egysege: '', netto_egysegar: 0, vip_ar: 0, nagyker_ar: 0, kisker_ar: 0, megjegyzes: '' }])
+            arjegyzekRows: this.state.arjegyzekRows.concat([{ ar_id: 0, megnevezes: '', mennyiseg: 1, mennyiseg_egysege: '', netto_egysegar: 0, megjegyzes: '' }])
         }, () => this.calcSum());
     };
 
     handleAddArEgyedi = () => {
         this.setState({
-            arjegyzekRows: this.state.arjegyzekRows.concat([{ ar_id: -1, megnevezes: '', mennyiseg: 1, mennyiseg_egysege: '', netto_egysegar: 0, vip_ar: 0, nagyker_ar: 0, kisker_ar: 0, megjegyzes: '' }])
+            arjegyzekRows: this.state.arjegyzekRows.concat([{ ar_id: -1, megnevezes: '', mennyiseg: 1, mennyiseg_egysege: '', netto_egysegar: 0, megjegyzes: '' }])
         }, () => this.calcSum());
     };
 
@@ -560,17 +557,17 @@ class ArajanlatPage extends Component {
             this.state.arjegyzekRows.map(a => (
                 total += a.netto_egysegar*a.mennyiseg
             ))
-            this.setState({ calculatedSum: total })
+            this.setState({ calculatedSum: round(total) })
         }
     }
 
     saveAndSendArajanlat(){
         this.setState({ saveAndSendBtn: false })
-        const { kiajanlasEmail, kiajanlasTargy, kiajanlasTartalom, arajanlat_id } = this.state;
+        const { kiajanlasEmail, kiajanlasTargy, arajanlat_id } = this.state;
         const user_id = this.state.user_data.user_id
         const company_id = this.state.company_data.company_id
         
-        if(kiajanlasEmail.trim().length === 0 || kiajanlasTargy.trim().length === 0 || kiajanlasTartalom.trim().length === 0){
+        if(kiajanlasEmail.trim().length === 0 || kiajanlasTargy.trim().length === 0){
             this.setState({ saveAndSendBtn: true }, () => {
                 Swal.fire({
                     title: 'Hiba',
@@ -587,7 +584,11 @@ class ArajanlatPage extends Component {
 
         const arjegyzek = encodeURIComponent(JSON.stringify(this.state.arjegyzekRows))
 
-        const body = 'admin_user_id='+this.state.admin_user_id+'&company_id='+company_id+'&user_id='+user_id+'&arajanlat_id='+arajanlat_id+'&email='+kiajanlasEmail+'&targy='+encodeURIComponent(kiajanlasTargy)+'&tartalom='+encodeURIComponent(kiajanlasTartalom)+'&arjegyzek='+arjegyzek+'&API_SECRET='+API_SECRET
+        const keresztnev = this.state.user_data.keresztnev;
+        const admin_nev = this.state.adminInfo.vezeteknev + ' ' + this.state.adminInfo.keresztnev;
+        const telszam = this.state.adminInfo.telefonszam;
+
+        const body = 'admin_user_id='+this.state.admin_user_id+'&company_id='+company_id+'&user_id='+user_id+'&arajanlat_id='+arajanlat_id+'&keresztnev='+keresztnev+'&admin_nev='+admin_nev+'&telszam='+telszam+'&email='+kiajanlasEmail+'&targy='+encodeURIComponent(kiajanlasTargy)+'&arjegyzek='+arjegyzek+'&API_SECRET='+API_SECRET
 
         API.post('arajanlat/arajanlatToUgyfel/', body)
         .then(res => {
@@ -708,6 +709,7 @@ class ArajanlatPage extends Component {
         return (
             <React.Fragment>
                 <Form>
+                    <Divider horizontal style={{ marginTop: '30px' }}><Header as='h4'>Kiajánlás</Header></Divider>
                     <Form.Group widths='equal'>
                         <Form.Field required>
                             <label>E-mail cím</label>
@@ -718,16 +720,6 @@ class ArajanlatPage extends Component {
                             <input placeholder='Tárgy' name='kiajanlasTargy' value={this.state.kiajanlasTargy} onChange={this.handleChange}/>
                         </Form.Field>
                     </Form.Group>
-                    <Form.Field 
-                        required
-                        control={TextareaAutosize}
-                        label="Árajánlat tartalma"
-                        placeholder="Árajánlat tartalma"
-                        onChange={this.handleChange}
-                        useCacheForDOMMeasurements
-                        value={this.state.kiajanlasTartalom}
-                        name='kiajanlasTartalom'
-                    />
                     <Divider horizontal style={{ marginTop: '30px' }}><Header as='h4'><Icon name='tag' />Árjegyzék</Header></Divider>
                     {
                         (this.state.arjegyzekRows.length > 0) ? (
@@ -736,13 +728,10 @@ class ArajanlatPage extends Component {
                                     <Table.Header>
                                         <Table.Row>
                                             <Table.HeaderCell textAlign='center' width='1'>#</Table.HeaderCell>
-                                            <Table.HeaderCell textAlign='center' width='4'>Megnevezés</Table.HeaderCell>
-                                            <Table.HeaderCell textAlign='center' width='1'>Mennyiség</Table.HeaderCell>
-                                            <Table.HeaderCell textAlign='center' width='1'>Me.egys.</Table.HeaderCell>
-                                            <Table.HeaderCell textAlign='center' width='2'>Nettó VIP ár</Table.HeaderCell>
-                                            <Table.HeaderCell textAlign='center' width='2'>Nettó nagyker ár</Table.HeaderCell>
-                                            <Table.HeaderCell textAlign='center' width='2'>Nettó kisker ár</Table.HeaderCell>
-                                            <Table.HeaderCell textAlign='center' width='2'>Nettó egys.ár</Table.HeaderCell>
+                                            <Table.HeaderCell textAlign='center' width='6'>Megnevezés</Table.HeaderCell>
+                                            <Table.HeaderCell textAlign='center' width='2'>Mennyiség</Table.HeaderCell>
+                                            <Table.HeaderCell textAlign='center' width='2'>Me.egys.</Table.HeaderCell>
+                                            <Table.HeaderCell textAlign='center' width='3'>Nettó egys.ár</Table.HeaderCell>
                                             <Table.HeaderCell textAlign='center'>&nbsp;</Table.HeaderCell>
                                         </Table.Row>
                                     </Table.Header>
@@ -770,21 +759,6 @@ class ArajanlatPage extends Component {
                                                             <input type='text' placeholder='Me.egys.' value={ar.mennyiseg_egysege} onChange={this.handleChange_MennyisegEgysege(idx)}/>
                                                         </Form.Field>
                                                     </Table.Cell>
-                                                    <Table.Cell onClick={ () => this.setNettoEgysegarViaClick('vip_ar', idx) } style={{ cursor:'pointer' }}>
-                                                        <Form.Field>
-                                                            <input type='number' placeholder='VIP' value={ar.vip_ar} readOnly disabled/>
-                                                        </Form.Field>
-                                                    </Table.Cell>
-                                                    <Table.Cell onClick={ () => this.setNettoEgysegarViaClick('nagyker_ar', idx) } style={{ cursor:'pointer' }}>
-                                                        <Form.Field>
-                                                            <input type='number' placeholder='Nagyker' value={ar.nagyker_ar} readOnly disabled/>
-                                                        </Form.Field>
-                                                    </Table.Cell>
-                                                    <Table.Cell onClick={ () => this.setNettoEgysegarViaClick('kisker_ar', idx) } style={{ cursor:'pointer' }}>
-                                                        <Form.Field>
-                                                            <input type='number' placeholder='Kisker' value={ar.kisker_ar} readOnly disabled/>
-                                                        </Form.Field>
-                                                    </Table.Cell>
                                                     <Table.Cell>
                                                         <Form.Field required>
                                                             <input type='number' placeholder='Nettó egységár' value={ar.netto_egysegar} onChange={this.handleChange_NettoEgysegar(idx)}/>
@@ -809,7 +783,7 @@ class ArajanlatPage extends Component {
                                 </Table.Body>
                                 <Table.Footer>
                                     <Table.Row>
-                                        <Table.HeaderCell colSpan='7' textAlign='right' style={{ fontWeight:'bold' }}>Összesen: </Table.HeaderCell>
+                                        <Table.HeaderCell colSpan='4' textAlign='right' style={{ fontWeight:'bold' }}>Összesen: </Table.HeaderCell>
                                         <Table.Cell positive textAlign='right'><b>{numberWithSpace(this.state.calculatedSum)} Ft</b></Table.Cell>
                                         <Table.HeaderCell>Bruttó: <b>{numberWithSpace(calcBrutto(this.state.calculatedSum))} Ft</b></Table.HeaderCell>
                                     </Table.Row>
@@ -867,7 +841,8 @@ class ArajanlatPage extends Component {
     
     render(){
         return (
-            <Container>
+            <div className="Site">
+              <Container className="Site-content">
                 <PageHeaderAdmin />
                 <p style={{ marginTop: '5em' }}></p>
                 <Button basic labelPosition='left' icon='left chevron' content='Vissza' onClick={ () => this.props.history.push("/admin/arajanlatok") }  style={{ marginBottom: '25px' }}/>
@@ -878,6 +853,8 @@ class ArajanlatPage extends Component {
                 <VallalkozoValaszModal data={this.state.vallalkozoValaszModalData} openModal={this.state.vallalkozoValaszModal} closeModal={ () => this.setState({ vallalkozoValaszModal: !this.state.vallalkozoValaszModal })} />
                 
             </Container>
+            <FooterUgyfel />
+            </div>
         )
     }
 }

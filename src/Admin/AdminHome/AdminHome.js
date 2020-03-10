@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Container, Table, Header, Segment, Icon } from 'semantic-ui-react'
 import PageHeaderAdmin from '../components/Header'
+import FooterUgyfel from '../../Ugyfel/components/Footer';
+import '../../Ugyfel/components/Footer.css';
 import PlaceholderComponent from '../../components/Placeholder/Placeholder';
 import API, { API_SECRET } from '../../api';
 
@@ -88,14 +90,17 @@ class AdminHome extends Component {
 
   render(){
     return (
-      <Container>
-        <PageHeaderAdmin  />
-          <p style={{ marginTop: '5em' }}></p>
-          <div style={{ paddingBottom: '3em' }}>
-              <Header as='h2' floated='left'>Friss árajánlatkérések</Header>
-          </div>
-          { this.renderInit() }
-      </Container>
+      <div className="Site">
+        <Container className="Site-content">
+          <PageHeaderAdmin  />
+            <p style={{ marginTop: '5em' }}></p>
+            <div style={{ paddingBottom: '3em' }}>
+                <Header as='h2' floated='left'>Megválaszolatlan árajánlatkérések</Header>
+            </div>
+            { this.renderInit() }
+        </Container>
+        <FooterUgyfel />
+      </div>
     );
   }
 }
