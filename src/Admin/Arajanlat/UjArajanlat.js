@@ -212,8 +212,7 @@ class UjArajanlatPage extends Component {
             felado_telefon.trim().length === 0 || 
             cimzett_email.trim().length === 0 || 
             cimzett_nev.trim().length === 0 || 
-            megnevezes.trim().length === 0 || 
-            tartalom.trim().length === 0
+            megnevezes.trim().length === 0
         ){
             this.setState({ submitBtn: true }, () => {
                 Swal.fire({
@@ -314,9 +313,7 @@ class UjArajanlatPage extends Component {
                         <label>Megnevezés</label>
                         <input placeholder='Megnevezés' name='megnevezes' value={this.state.megnevezes} onChange={this.handleChange} />
                     </Form.Field>
-
                     <Form.Field 
-                        required
                         control={TextareaAutosize}
                         label="Árajánlat tartalma"
                         placeholder="Árajánlat tartalma"
