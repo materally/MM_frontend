@@ -63,7 +63,7 @@ class NewUserModal extends Component {
             this.setState({ messageHidden: true, messageText: '', submitBtn: false })
         }
 
-        API.post('ugyfel/createUser/'+company_id, 'email='+email+'&telefonszam='+telefonszam+'&vezeteknev='+vezeteknev+'&keresztnev='+keresztnev+'&admin_nev='+admin_nev+'&admin_tel='+encodeURIComponent(this.state.adminInfo.telefonszam)+'&API_SECRET='+API_SECRET)
+        API.post('ugyfel/createUser/'+company_id, 'email='+email+'&telefonszam='+encodeURIComponent(telefonszam)+'&vezeteknev='+vezeteknev+'&keresztnev='+keresztnev+'&admin_nev='+admin_nev+'&admin_tel='+encodeURIComponent(this.state.adminInfo.telefonszam)+'&API_SECRET='+API_SECRET)
             .then(res => {
                 var response = res.data;
                 if(response.error){

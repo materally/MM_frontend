@@ -236,7 +236,7 @@ class ClientPage extends Component {
       return
     }
 
-    API.post('ugyfel/editCompanyInfo/'+this.state.company_id, 'cegnev='+editCegnev+'&szamlazasi_cim='+editSzamlazasiCim+'&adoszam='+editAdoszam+'&kozponti_telefonszam='+editKozpontiTelefonszam+'&API_SECRET='+API_SECRET)
+    API.post('ugyfel/editCompanyInfo/'+this.state.company_id, 'cegnev='+editCegnev+'&szamlazasi_cim='+editSzamlazasiCim+'&adoszam='+editAdoszam+'&kozponti_telefonszam='+encodeURIComponent(editKozpontiTelefonszam)+'&API_SECRET='+API_SECRET)
     .then(res => {
         var response = res.data;
         if(response.success){

@@ -38,8 +38,8 @@ class UgyfelArjegyzek extends Component {
                     <Table.HeaderCell textAlign='center'>Menny. egys.</Table.HeaderCell>
                     <Table.HeaderCell textAlign='center'>Mennyiség</Table.HeaderCell>
                     <Table.HeaderCell textAlign='center'>Megjegyzés</Table.HeaderCell>
-                    <Table.HeaderCell textAlign='center'>Eladási nettó ár</Table.HeaderCell>
-                    <Table.HeaderCell textAlign='center'>Eladási bruttó ár</Table.HeaderCell>
+                    <Table.HeaderCell textAlign='center'>Beszerzési nettó ár</Table.HeaderCell>
+                    <Table.HeaderCell textAlign='center'>Beszerzési bruttó ár</Table.HeaderCell>
                 </Table.Row>
                 </Table.Header>
                 <Table.Body>

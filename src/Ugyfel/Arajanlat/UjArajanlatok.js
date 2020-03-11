@@ -37,7 +37,7 @@ class UjArajanlatokPage extends Component {
         if(this.state.loadingPage && this.state.data.length === 0){
           return <PlaceholderComponent />
         }else if(!this.state.loadingPage && this.state.data.length === 0){
-          return <h4>Még nincs árajánlatkérésed!</h4>
+          return <h4>Még nincs érkezett ajánlatod!</h4>
         }else{
           return this.renderList()
         }

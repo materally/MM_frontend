@@ -44,7 +44,7 @@ class NewClientModal extends Component {
             this.setState({ messageHidden: true, messageText: '', submitBtn: false })
         }
 
-        API.post('ugyfel/create', 'cegnev='+encodeURIComponent(cegnev)+'&szamlazasi_cim='+encodeURIComponent(szamlazasi_cim)+'&adoszam='+this.state.adoszam+'&kozponti_telefonszam='+this.state.kozponti_telefonszam+'&price_scope='+price_scope+'&API_SECRET='+API_SECRET)
+        API.post('ugyfel/create', 'cegnev='+encodeURIComponent(cegnev)+'&szamlazasi_cim='+encodeURIComponent(szamlazasi_cim)+'&adoszam='+this.state.adoszam+'&kozponti_telefonszam='+encodeURIComponent(this.state.kozponti_telefonszam)+'&price_scope='+price_scope+'&API_SECRET='+API_SECRET)
             .then(res => {
                 var response = res.data;
                 var company_id = response.company_id;
