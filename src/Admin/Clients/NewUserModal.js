@@ -6,6 +6,8 @@ class NewUserModal extends Component {
     constructor(props) {
         super(props);
         this.state = { 
+            admin_user_id: localStorage.getItem('user_id'),
+            adminInfo: [],
             modalOpen: this.props.openModal,
             company_id: this.props.company_id,
             submitBtn: true,
@@ -18,6 +20,18 @@ class NewUserModal extends Component {
             telefonszam:'',
         }
         this.handleChange = this.handleChange.bind(this)
+        this.loadAdminInfo()
+    }
+
+    loadAdminInfo(){
+        API.get(`admin/adminInfo/${this.state.admin_user_id}`, {params: {'API_SECRET': API_SECRET} })
+        .then(res2 => {
+            var response2 = res2.data;
+            if(response2){
+                this.setState({ adminInfo: response2 });
+            }
+        })
+        .catch(error => console.log("Error: "+error));
     }
 
     UNSAFE_componentWillReceiveProps(nextProps) {
@@ -40,6 +54,7 @@ class NewUserModal extends Component {
         const telefonszam = this.state.telefonszam;
         const vezeteknev = this.state.vezeteknev;
         const keresztnev = this.state.keresztnev;
+        const admin_nev = this.state.adminInfo.vezeteknev + ' ' + this.state.adminInfo.keresztnev
 
         if(email.trim().length === 0 || keresztnev.trim().length === 0 || vezeteknev.trim().length === 0){
             this.setState({ messageHidden: false, messageText: 'A csillaggal jelölt mezők kitöltése kötelező!', submitBtn: true, buttonLoader: false });
@@ -48,7 +63,7 @@ class NewUserModal extends Component {
             this.setState({ messageHidden: true, messageText: '', submitBtn: false })
         }
 
-        API.post('ugyfel/createUser/'+company_id, 'email='+email+'&telefonszam='+telefonszam+'&vezeteknev='+vezeteknev+'&keresztnev='+keresztnev+'&API_SECRET='+API_SECRET)
+        API.post('ugyfel/createUser/'+company_id, 'email='+email+'&telefonszam='+telefonszam+'&vezeteknev='+vezeteknev+'&keresztnev='+keresztnev+'&admin_nev='+admin_nev+'&admin_tel='+encodeURIComponent(this.state.adminInfo.telefonszam)+'&API_SECRET='+API_SECRET)
             .then(res => {
                 var response = res.data;
                 if(response.error){

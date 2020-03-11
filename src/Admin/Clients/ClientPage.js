@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Container, Button, Card, Tab, Table, Icon, Confirm, Divider, Header, Input } from 'semantic-ui-react'
+import { Container, Button, Card, Tab, Table, Icon, Confirm, Divider, Header, Input, Form } from 'semantic-ui-react'
 import API, { API_SECRET } from '../../api';
 
 import PageHeaderAdmin from '../components/Header'
@@ -37,6 +37,12 @@ class ClientPage extends Component {
       openModalNewUser: false,
       deleteClientConfirmWindow: false,
 
+      editCegnev: '',
+      editSzamlazasiCim: '',
+      editAdoszam: '',
+      editKozpontiTelefonszam: '',
+      submitBtnAdatok: true,
+
       priceEdit: false,
       priceEditId: 0,
       priceEditValue: 0
@@ -60,7 +66,7 @@ class ClientPage extends Component {
     .then(res => {
         var response = res.data;
         if(response){
-            this.setState({ data: response, price_scope: response.price_scope });
+            this.setState({ data: response, price_scope: response.price_scope, editKozpontiTelefonszam: response.kozponti_telefonszam, editSzamlazasiCim: response.szamlazasi_cim, editCegnev: response.cegnev, editAdoszam: response.adoszam });
         }
     })
     .catch(error => console.log("Error: "+error));
@@ -215,9 +221,83 @@ class ClientPage extends Component {
     .catch(error => console.log("Error: "+error));
   }
 
+  saveUgyfelAdatok(){
+    this.setState({ submitBtnAdatok: false })
+    const { editCegnev, editSzamlazasiCim, editAdoszam, editKozpontiTelefonszam } = this.state;
+
+    if(editCegnev.trim().length === 0 || editSzamlazasiCim.trim().length === 0){
+      Swal.fire({
+        title: 'Sikertelen',
+        text: 'A csillaggal jelölt mezők kitöltése kötelező!',
+        icon: 'error',
+        showConfirmButton: false,
+        timer: 1500
+      })
+      return
+    }
+
+    API.post('ugyfel/editCompanyInfo/'+this.state.company_id, 'cegnev='+editCegnev+'&szamlazasi_cim='+editSzamlazasiCim+'&adoszam='+editAdoszam+'&kozponti_telefonszam='+editKozpontiTelefonszam+'&API_SECRET='+API_SECRET)
+    .then(res => {
+        var response = res.data;
+        if(response.success){
+          Swal.fire({
+            title: 'Sikeres',
+            text: 'A módosítások mentve!',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500
+          })
+          this.getData()
+          this.setState({ submitBtnAdatok: true })
+        }
+    })
+    .catch(error => console.log("Error: "+error));    
+  }
+
   pageSettings(){
     return(  
       <React.Fragment>
+
+        <Divider horizontal style={{ marginTop: '40px' }}>
+          <Header as='h4'>
+            <Icon name='building' />
+            Adatok
+          </Header>
+        </Divider>
+
+        <Form style={{ width: '60%', margin: '0 auto' }}>
+            <Form.Field required>
+                <label>Cégnév</label>
+                <input placeholder='Cégnév' name='editCegnev' value={this.state.editCegnev} onChange={this.handleChange}/>
+            </Form.Field>
+            <Form.Field required>
+                <label>Számlázási cím</label>
+                <input placeholder='Számlázási cím' name='editSzamlazasiCim' value={this.state.editSzamlazasiCim} onChange={this.handleChange}/>
+            </Form.Field>
+            <Form.Field>
+                <label>Adószám</label>
+                <input placeholder='Adószám' name='editAdoszam' value={this.state.editAdoszam} onChange={this.handleChange}/>
+            </Form.Field>
+            <Form.Field>
+                <label>Központi telefonszám</label>
+                <input placeholder='Központi telefonszám' name='editKozpontiTelefonszam' value={this.state.editKozpontiTelefonszam} onChange={this.handleChange}/>
+            </Form.Field>
+
+            <div style={{ textAlign: 'center' }}>
+              <Button
+                  positive
+                  compact
+                  icon='save'
+                  labelPosition='right'
+                  content="Módosítások mentése"
+                  type='submit' 
+                  onClick={ () => this.saveUgyfelAdatok() }
+                  disabled={!this.state.submitBtnAdatok}
+                  loading={!this.state.submitBtnAdatok}
+              />
+            </div>
+        </Form>
+
         <Divider horizontal style={{ marginTop: '40px' }}>
           <Header as='h4'>
             <Icon name='tag' />
@@ -340,7 +420,7 @@ class ClientPage extends Component {
     .then(k => {
       this.setState({ priceEdit: false, priceEditId: 0, priceEditValue: 0 })
     })
-    .catch(error => console.log("Error: "+error));    
+    .catch(error => console.log("Error: "+error));
   }
 
   onClickPriceEdit(u_a_id, price){

@@ -13,6 +13,7 @@ class LostPasswordPage extends Component {
         messageText: '',
         messageHiddenGreen: true,
         messageTextGreen: '',
+        keresztnev: ''
     }
     this.handleChange = this.handleChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
@@ -26,25 +27,31 @@ class LostPasswordPage extends Component {
     this.setState({ submitBtn: false })
     const email = this.state.inputEmail;
 
-      if(email.trim().length === 0){
-          this.setState({ messageHidden: false, messageText: 'Minden mező kitöltése kötelező!', submitBtn: true });
-          return;
-      }else{
-          this.setState({ messageHidden: true, messageText: '', submitBtn: true })
-      }
-
-    API.post(`ugyfel/lostpw/${email}`, 'API_SECRET='+API_SECRET)
+    if(email.trim().length === 0){
+        this.setState({ messageHidden: false, messageText: 'Minden mező kitöltése kötelező!', submitBtn: true });
+        return;
+    }else{
+        this.setState({ messageHidden: true, messageText: '', submitBtn: true })
+        API.post(`ugyfel/getViaEmail/${email}`, 'API_SECRET='+API_SECRET)
         .then(res => {
             var response = res.data;
-            if(response.error){
-                this.setState({ messageHidden: false, messageText: response.error });
-                return;
+            if(response){
+                API.post(`ugyfel/lostpw/${email}`, 'keresztnev='+response.keresztnev+'&API_SECRET='+API_SECRET)
+                .then(res => {
+                    var response = res.data;
+                    if(response.error){
+                        this.setState({ messageHidden: false, messageText: response.error });
+                        return;
+                    }
+                    this.setState({ messageHiddenGreen: false, messageTextGreen: response.success });
+                })
+                .catch(error => console.log("Error: "+error));
             }
-            
             this.setState({ messageHiddenGreen: false, messageTextGreen: response.success });
         })
         .catch(error => console.log("Error: "+error));
-    
+    }
+
     event.preventDefault();
   }
 
@@ -61,7 +68,7 @@ class LostPasswordPage extends Component {
                 </Header>
                 <Form size='large' onSubmit={this.handleSubmit}>
                     <Segment stacked>
-                    <Form.Input required fluid icon='envelope' iconPosition='left' placeholder='Új jelszó igénylése' name='inputEmail' value={this.state.inputEmail} onChange={this.handleChange} />
+                    <Form.Input required fluid icon='envelope' iconPosition='left' placeholder='Írd be az e-mail címed' name='inputEmail' value={this.state.inputEmail} onChange={this.handleChange} />
                     
                     <Button color='olive' fluid size='large' type='submit' disabled={!this.state.submitBtn} loading={!this.state.submitBtn}>
                         Új jelszó generálása

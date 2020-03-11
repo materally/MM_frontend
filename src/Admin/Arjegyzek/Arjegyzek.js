@@ -124,7 +124,7 @@ class Arjegyzek extends Component {
     render(){
         return (
             <div className="Site">
-              <Container className="Site-content">
+              <Container className="Site-content" style={{ width: '95%' }}>
                 <Container>
                     <PageHeaderAdmin />
                     <p style={{ marginTop: '5em' }}></p>

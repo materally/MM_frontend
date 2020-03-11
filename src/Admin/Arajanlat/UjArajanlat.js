@@ -211,7 +211,6 @@ class UjArajanlatPage extends Component {
             felado_email.trim().length === 0 || 
             felado_telefon.trim().length === 0 || 
             cimzett_email.trim().length === 0 || 
-            cimzett_telefonszam.trim().length === 0 || 
             cimzett_nev.trim().length === 0 || 
             megnevezes.trim().length === 0 || 
             tartalom.trim().length === 0
@@ -231,7 +230,7 @@ class UjArajanlatPage extends Component {
         }
 
         const arjegyzek = encodeURIComponent(JSON.stringify(this.state.arjegyzekRows))
-        const body = 'admin_user_id='+this.state.admin_user_id+'&company_id='+cimzett_company_id+'&user_id='+cimzett_user_id+'&felado_nev='+felado_nev+'&felado_telefon='+felado_telefon+'&felado_email='+felado_email+'&cimzett_email='+cimzett_email+'&cimzett_telefonszam='+cimzett_telefonszam+'&cimzett_nev='+cimzett_nev+'&megnevezes='+encodeURIComponent(megnevezes)+'&tartalom='+encodeURIComponent(tartalom)+'&arjegyzek='+arjegyzek+'&API_SECRET='+API_SECRET        
+        const body = 'admin_user_id='+this.state.admin_user_id+'&company_id='+cimzett_company_id+'&user_id='+cimzett_user_id+'&felado_nev='+felado_nev+'&felado_telefon='+encodeURIComponent(felado_telefon)+'&felado_email='+felado_email+'&cimzett_email='+cimzett_email+'&cimzett_telefonszam='+encodeURIComponent(cimzett_telefonszam)+'&cimzett_nev='+cimzett_nev+'&megnevezes='+encodeURIComponent(megnevezes)+'&tartalom='+encodeURIComponent(tartalom)+'&arjegyzek='+arjegyzek+'&API_SECRET='+API_SECRET        
         
         API.post('arajanlat/ujArajanlat/', body)
         .then(res => {
@@ -303,7 +302,7 @@ class UjArajanlatPage extends Component {
                             <label>E-mail cím</label>
                             <input placeholder='E-mail cím' name='cimzett_email' value={this.state.cimzett_email} onChange={this.handleChange} />
                         </Form.Field>
-                        <Form.Field required>
+                        <Form.Field>
                             <label>Telefonszám</label>
                             <input placeholder='Telefonszám' name='cimzett_telefonszam' value={this.state.cimzett_telefonszam} onChange={this.handleChange} />
                         </Form.Field>

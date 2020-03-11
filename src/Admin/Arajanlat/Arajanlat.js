@@ -42,6 +42,7 @@ class ArajanlatPage extends Component {
 
             kiajanlasEmail: '',
             kiajanlasTargy: '',
+            kiajanlasTartalom: '',
             calculatedSum: 0,
 
             arjegyzek: [],
@@ -563,7 +564,7 @@ class ArajanlatPage extends Component {
 
     saveAndSendArajanlat(){
         this.setState({ saveAndSendBtn: false })
-        const { kiajanlasEmail, kiajanlasTargy, arajanlat_id } = this.state;
+        const { kiajanlasEmail, kiajanlasTargy, kiajanlasTartalom, arajanlat_id } = this.state;
         const user_id = this.state.user_data.user_id
         const company_id = this.state.company_data.company_id
         
@@ -588,7 +589,7 @@ class ArajanlatPage extends Component {
         const admin_nev = this.state.adminInfo.vezeteknev + ' ' + this.state.adminInfo.keresztnev;
         const telszam = this.state.adminInfo.telefonszam;
 
-        const body = 'admin_user_id='+this.state.admin_user_id+'&company_id='+company_id+'&user_id='+user_id+'&arajanlat_id='+arajanlat_id+'&keresztnev='+keresztnev+'&admin_nev='+admin_nev+'&telszam='+telszam+'&email='+kiajanlasEmail+'&targy='+encodeURIComponent(kiajanlasTargy)+'&arjegyzek='+arjegyzek+'&API_SECRET='+API_SECRET
+        const body = 'admin_user_id='+this.state.admin_user_id+'&company_id='+company_id+'&user_id='+user_id+'&arajanlat_id='+arajanlat_id+'&keresztnev='+keresztnev+'&admin_nev='+admin_nev+'&telszam='+encodeURIComponent(telszam)+'&email='+kiajanlasEmail+'&targy='+encodeURIComponent(kiajanlasTargy)+'&tartalom='+encodeURIComponent(kiajanlasTartalom)+'&arjegyzek='+arjegyzek+'&API_SECRET='+API_SECRET
 
         API.post('arajanlat/arajanlatToUgyfel/', body)
         .then(res => {
@@ -641,9 +642,6 @@ class ArajanlatPage extends Component {
                         <Grid.Column width='3'><Header sub style={{ color: '#E80D8A' }}>Tárgy</Header><span>{arajanlat.targy}</span></Grid.Column>
                         <Grid.Column width='3'><Header sub style={{ color: '#E80D8A' }}>Dátum</Header><span>{arajanlat.datum}</span></Grid.Column>
                         <Grid.Column width='3'><Header sub style={{ color: '#E80D8A' }}>PDF</Header><span><a href={arajanlat.pdf} target="_blank" rel="noopener noreferrer">megtekintés</a></span></Grid.Column>
-                    </Grid.Row>
-                    <Grid.Row>
-                        <Grid.Column width='12'><Header sub style={{ color: '#E80D8A' }}>Tartalom</Header><span>{nl2br(arajanlat.tartalom)}</span></Grid.Column>
                     </Grid.Row>
                     {
                         arjegyzek.length !== 0 ? (
@@ -720,6 +718,15 @@ class ArajanlatPage extends Component {
                             <input placeholder='Tárgy' name='kiajanlasTargy' value={this.state.kiajanlasTargy} onChange={this.handleChange}/>
                         </Form.Field>
                     </Form.Group>
+                    <Form.Field 
+                        control={TextareaAutosize}
+                        label="Árajánlat tartalma"
+                        placeholder="Árajánlat tartalma"
+                        onChange={this.handleChange}
+                        useCacheForDOMMeasurements
+                        value={this.state.kiajanlasTartalom}
+                        name='kiajanlasTartalom'
+                    />
                     <Divider horizontal style={{ marginTop: '30px' }}><Header as='h4'><Icon name='tag' />Árjegyzék</Header></Divider>
                     {
                         (this.state.arjegyzekRows.length > 0) ? (
