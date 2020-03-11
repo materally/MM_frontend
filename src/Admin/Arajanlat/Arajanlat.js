@@ -642,6 +642,9 @@ class ArajanlatPage extends Component {
                         <Grid.Column width='3'><Header sub style={{ color: '#E80D8A' }}>Tárgy</Header><span>{arajanlat.targy}</span></Grid.Column>
                         <Grid.Column width='3'><Header sub style={{ color: '#E80D8A' }}>Dátum</Header><span>{arajanlat.datum}</span></Grid.Column>
                         <Grid.Column width='3'><Header sub style={{ color: '#E80D8A' }}>PDF</Header><span><a href={arajanlat.pdf} target="_blank" rel="noopener noreferrer">megtekintés</a></span></Grid.Column>
+                        {
+                            (arajanlat.tartalom === '') ? null : <Grid.Column width='12' style={{ paddingTop: '20px' }}><Header sub style={{ color: '#E80D8A' }}>Tartalom</Header>{arajanlat.tartalom}</Grid.Column>
+                        }
                     </Grid.Row>
                     {
                         arjegyzek.length !== 0 ? (
