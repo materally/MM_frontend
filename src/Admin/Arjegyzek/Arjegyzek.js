@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Container, Table, Header, Button, Icon, Confirm } from 'semantic-ui-react'
+import { Container, Table, Header, Button, Icon, Confirm, Input } from 'semantic-ui-react'
 import API, { API_SECRET } from '../../api';
 import { numberWithSpace } from '../../Helpers/Helpers'
 import PlaceholderComponent from '../../components/Placeholder/Placeholder';
@@ -22,17 +22,38 @@ class Arjegyzek extends Component {
             editArId: 0,
             deleteArConfirmWindow: false,
             deleteArId: 0,
-            hideBekerules: true
+            hideBekerules: true,
+            loading:false,
+            query: '',
+            filteredData: []
         }
         this.getData();
     }
+
+    handleInputChange = event => {
+        this.setState({ loading: true })
+        const query = event.target.value;
+        this.setState(prevState => {
+          const filteredData = prevState.data.filter(element => {
+            return element.megnevezes.toLowerCase().includes(query.toLowerCase());
+          });
+          return {
+            query,
+            filteredData
+          };
+        }, () => this.setState({ loading: false }));
+    };
 
     getData(){
         API.get(`arjegyzek`, {params: {'API_SECRET': API_SECRET} })
         .then(res => {
             var response = res.data;
             if(response){
-                this.setState({ data: response, loadingPage: false });
+                const { query } = this.state;
+                const filteredData = response.filter(element => {
+                    return element.megnevezes.toLowerCase().includes(query.toLowerCase());
+                });
+                this.setState({ data: response, filteredData: filteredData, loadingPage: false });
             }
         })
         .catch(error => console.log("Error: "+error));
@@ -79,7 +100,7 @@ class Arjegyzek extends Component {
                 </Table.Header>
                 <Table.Body>
                     {
-                        this.state.data.map((ar) => (
+                        this.state.filteredData.map((ar) => (
                             <Table.Row key={ar.ar_id} onClick={ () => null }>
                                 <Table.Cell>{ ar.megnevezes }</Table.Cell>
                                 <Table.Cell textAlign='center'>{ ar.mennyiseg_egysege }</Table.Cell>
@@ -133,6 +154,7 @@ class Arjegyzek extends Component {
                         <Button floated='left' compact icon='lock' color='orange' onClick={ () => this.setState({ hideBekerules: !this.state.hideBekerules})  } />
                         <Button floated='right' compact labelPosition='right' icon='plus square' content='Új ár létrehozása' color='green' onClick={ () => this.setState({ openModalNewAr: !this.state.openModalNewAr})  } />
                     </div>
+                    <Input style={{ width: '100%', marginTop: '20px', marginBottom: '10px' }} loading={this.state.loading} icon='search' placeholder='Keresés...' value={this.state.query} onChange={this.handleInputChange}/>
                 </Container>
                 <Container style={{ width:'95%' }}>
                     { this.renderInit() }

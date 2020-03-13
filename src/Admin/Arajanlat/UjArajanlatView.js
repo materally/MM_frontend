@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Container, Button, Table, Icon, Header } from 'semantic-ui-react'
+import { Container, Button, Table, Icon, Header, Confirm } from 'semantic-ui-react'
 import nl2br from 'react-nl2br';
 import { numberWithSpace, calcBrutto } from '../../Helpers/Helpers'
 import API, { API_SECRET } from '../../api';
@@ -17,7 +17,8 @@ class UjArajanlatViewPage extends Component {
             uj_arajanlat_id: this.props.match.params.uj_arajanlat_id,
             data: [],
             company_data: [],
-            arjegyzek: []
+            arjegyzek: [],
+            deleteArajanlat: false
         }
         this.getData();
     }
@@ -127,6 +128,15 @@ class UjArajanlatViewPage extends Component {
         )
     }
 
+    deleteArajanlat(){
+        const { uj_arajanlat_id } = this.state;
+        API.post('arajanlat/deleteUjArajanlat/'+uj_arajanlat_id, 'API_SECRET='+API_SECRET)
+        .then(res => {
+            this.props.history.push("/admin/uj_arajanlatok")
+        })
+        .catch(error => console.log("Error: "+error));
+    }
+
     render(){
         return (
             <div className="Site">
@@ -134,8 +144,21 @@ class UjArajanlatViewPage extends Component {
                 <PageHeaderAdmin />
                 <p style={{ marginTop: '5em' }}></p>
                 <Button basic labelPosition='left' icon='left chevron' content='Vissza' onClick={ () => this.props.history.push("/admin/uj_arajanlatok") }  style={{ marginBottom: '25px' }}/>
+
+                <Button basic color='red' floated='right' labelPosition='right' icon='trash' content='Árajánlat törlése' onClick={ () => this.setState({ deleteArajanlat: true }) }  style={{ marginBottom: '25px' }}/>
+
                 {(this.state.data.length !== 0) ? this.renderInfo() : <PlaceholderComponent /> }  
-                    
+                
+                <Confirm
+                    content='Biztos vagy benne? A művelet nem vonható vissza!'
+                    size='tiny'
+                    cancelButton='Mégsem'
+                    confirmButton='Mehet'
+                    open={this.state.deleteArajanlat}
+                    onCancel={ () => this.setState({ deleteArajanlat: false }) }
+                    onConfirm={ () => this.deleteArajanlat() }
+                />
+                
             </Container>
             <FooterUgyfel />
             </div>

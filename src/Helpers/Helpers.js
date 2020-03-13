@@ -1,5 +1,7 @@
 export function numberWithSpace(x) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    let a = x.toLocaleString()
+    let res = a.replace(".", ",");
+    return res
 }
 
 export function round(value, precision) {

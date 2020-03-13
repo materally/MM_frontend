@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Container, Table, Tab, Button, TextArea, Form, Comment, Icon, Divider, Header, Select, Menu, Label, Grid } from 'semantic-ui-react'
+import { Container, Table, Tab, Button, TextArea, Form, Comment, Icon, Divider, Header, Select, Menu, Label, Grid, Confirm } from 'semantic-ui-react'
 import API, { API_SECRET } from '../../api';
 import nl2br from 'react-nl2br';
 import Swal from 'sweetalert2';
@@ -53,7 +53,8 @@ class ArajanlatPage extends Component {
 
             submitBtn: true,
             sendEmailBtn: true,
-            saveAndSendBtn: true
+            saveAndSendBtn: true,
+            deleteArajanlat: false
         }
         this.getData();
         this.getAlvallalkozok();
@@ -819,6 +820,15 @@ class ArajanlatPage extends Component {
         )
     }
 
+    deleteArajanlat(){
+        const { arajanlat_id } = this.state;
+        API.post('arajanlat/deleteArajanlat/'+arajanlat_id, 'API_SECRET='+API_SECRET)
+        .then(res => {
+            this.props.history.push("/admin/arajanlatok")
+        })
+        .catch(error => console.log("Error: "+error));
+    }
+
     renderInfo(){
         const menus = [
           {
@@ -856,12 +866,25 @@ class ArajanlatPage extends Component {
                 <PageHeaderAdmin />
                 <p style={{ marginTop: '5em' }}></p>
                 <Button basic labelPosition='left' icon='left chevron' content='Vissza' onClick={ () => this.props.history.push("/admin/arajanlatok") }  style={{ marginBottom: '25px' }}/>
+
+                <Button basic color='red' floated='right' labelPosition='right' icon='trash' content='Árajánlatkérés törlése' onClick={ () => this.setState({ deleteArajanlat: true }) }  style={{ marginBottom: '25px' }}/>
+
                 {(this.state.data.length !== 0) ? this.renderInfo() : <PlaceholderComponent /> }  
 
                 <ArajanlatToAlvallalkozoModal data={this.state.arajanlatDetailsModalData} openModal={this.state.arajanlatDetailsModal} closeModal={ () => this.setState({ arajanlatDetailsModal: !this.state.arajanlatDetailsModal })} />
 
                 <VallalkozoValaszModal data={this.state.vallalkozoValaszModalData} openModal={this.state.vallalkozoValaszModal} closeModal={ () => this.setState({ vallalkozoValaszModal: !this.state.vallalkozoValaszModal })} />
                 
+                <Confirm
+                    content='Biztos vagy benne? A művelet nem vonható vissza!'
+                    size='tiny'
+                    cancelButton='Mégsem'
+                    confirmButton='Mehet'
+                    open={this.state.deleteArajanlat}
+                    onCancel={ () => this.setState({ deleteArajanlat: false }) }
+                    onConfirm={ () => this.deleteArajanlat() }
+                />
+
             </Container>
             <FooterUgyfel />
             </div>

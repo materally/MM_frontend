@@ -97,6 +97,7 @@ class UjArajanlatPage extends Component {
     getClients(){
         API.get(`ugyfel`, {params: {'API_SECRET': API_SECRET} })
         .then(res => {
+            console.log(res.data)
             var response = res.data;
             if(response){
                 let array = []
@@ -104,7 +105,7 @@ class UjArajanlatPage extends Component {
                     let temp = {
                         key: a.user_id,
                         value: a.user_id,
-                        text: a.vezeteknev + ' ' + a.keresztnev,
+                        text: a.vezeteknev + ' ' + a.keresztnev + ' (' + a.client_company.cegnev + ')',
                         email: a.email,
                         telefonszam: a.telefonszam,
                         company_id: a.company_id

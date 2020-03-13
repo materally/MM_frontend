@@ -168,7 +168,7 @@ class AlvallalkozoPage extends Component {
         }else{
             this.setState({ messageHidden: true, messageText: '', saveBeallitasokBtn: false })
         }
-        API.post('alvallalkozo/update/'+alvallalkozo_id, 'email='+email+'&vezeteknev='+vezeteknev+'&keresztnev='+keresztnev+'&telefon='+telefon+'&cegnev='+cegnev+'&megnevezes='+megnevezes+'&adoszam='+adoszam+'&bankszamlaszam='+bankszamlaszam+'&megjegyzes='+megjegyzes+'&API_SECRET='+API_SECRET)
+        API.post('alvallalkozo/update/'+alvallalkozo_id, 'email='+email+'&vezeteknev='+vezeteknev+'&keresztnev='+keresztnev+'&telefon='+encodeURIComponent(telefon)+'&cegnev='+cegnev+'&megnevezes='+megnevezes+'&adoszam='+adoszam+'&bankszamlaszam='+bankszamlaszam+'&megjegyzes='+megjegyzes+'&API_SECRET='+API_SECRET)
             .then(res => {
                 var response = res.data;
                 if(response.error){
